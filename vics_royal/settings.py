@@ -150,30 +150,18 @@ WSGI_APPLICATION = 'vics_royal.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/4.0/ref/settings/#databases
+# Use PostgreSQL via DATABASE_URL (Render production and preview)
+DATABASES = {
+    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
+}
 
-if DEBUG:
-    # Development database configuration (PostgreSQL)
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('DB_NAME', 'vic_royal_db'),
-            'USER': os.getenv('DB_USER', 'postgres'),
-            'PASSWORD': os.getenv('DB_PASSWORD', 'your_password'),
-            'HOST': os.getenv('DB_HOST', 'localhost'),
-            'PORT': os.getenv('DB_PORT', '5433'),
-        }
-    }
-else:
-    # Production database configuration (using DATABASE_URL)
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=os.getenv('DATABASE_URL'),
-            conn_max_age=600  # Keeps the database connection open for 10 minutes
-        )
-    }
-    # Database connection pooling (for production)
-    DATABASES['default']['CONN_MAX_AGE'] = 60 * 5  # 5 minutes
+# For local development with SQLite, uncomment below and comment out the DATABASE_URL block above:
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
