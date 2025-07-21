@@ -144,8 +144,8 @@
             <div class="group">
                 <div class="bg-white rounded-lg shadow-lg overflow-hidden transform transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl border border-pink-100">
                     <div class="relative">
-                        {% if product.image %}
-                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-64 object-cover">
+                        {% if product.images.first %}
+                        <img src="{{ product.images.first.medium_url|default:product.images.first.image.url }}" alt="{{ product.name }}" class="w-full h-64 object-cover">
                         {% else %}
                         <div class="w-full h-64 bg-pink-100 flex items-center justify-center">
                             <span class="text-pink-400">No Image</span>
