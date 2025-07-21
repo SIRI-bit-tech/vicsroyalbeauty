@@ -1,89 +1,113 @@
-asgiref==3.8.1
-backports.tarfile==1.2.0
-build==1.2.2.post1
-CacheControl==0.14.2
-certifi==2024.12.14
-cffi==1.17.1
-charset-normalizer==3.4.1
-cleo==2.1.0
-colorama==0.4.6
-crashtest==0.4.1
-crispy-tailwind==0.5.0
-cryptography==44.0.0
-defusedxml==0.8.0rc2
-distlib==0.3.9
-dj-database-url==2.3.0
-Django==5.1.5
-django-allauth==0.60.1
-django-cors-headers==4.3.1
-django-crispy-forms==1.14.0
-django-environ==0.12.0
-django-tailwind==3.8.0
-djangorestframework==3.14.0
-dulwich==0.22.7
-fastjsonschema==2.21.1
-filelock==3.17.0
-gunicorn==21.2.0
-idna==3.10
-importlib-metadata==8.6.1
-installer==0.7.0
-jaraco.classes==3.4.0
-jaraco.context==6.0.1
-jaraco.functools==4.1.0
-keyring==25.6.0
-more-itertools==10.6.0
-msgpack==1.1.0
-oauthlib==3.2.2
-packaging==24.2
-pillow==10.2.0
-pkginfo==1.12.0
-platformdirs==4.3.6
-poetry==2.0.1
-poetry-core==2.0.1
-psycopg2==2.9.10
-psycopg2-binary==2.9.9
-pycparser==2.22
-PyJWT==2.10.1
-pyproject_hooks==1.2.0
-python-decouple==3.8
-python-dotenv==1.0.0
-python3-openid==3.2.0
-pytz==2024.2
-pywin32-ctypes==0.2.3
-railway==0.0.4
-RapidFuzz==3.11.0
-requests==2.32.3
-requests-oauthlib==2.0.0
-requests-toolbelt
-shellingham==1.5.4
-sqlparse==0.5.3
-tomli==2.2.1
-tomli-w==1.2.0
-trove-classifiers==2025.1.15.22
-typing_extensions==4.12.2
-tzdata==2024.2
-urllib3==2.3.0
-virtualenv==20.29.1
-whitenoise==6.6.0
-zipp==3.21.0
+# Core Django
+Django
+asgiref
+sqlparse
+pytz
+tzdata
+
+# Database
+psycopg2-binary
+dj-database-url
+
+# Authentication & User Management
+django-allauth
+PyJWT
+oauthlib
+python3-openid
+requests-oauthlib
+defusedxml
+
+# Forms & UI
+django-crispy-forms
+crispy-tailwind
+django-tailwind
+
+# API & CORS
+djangorestframework
+django-cors-headers
+
+# Environment & Configuration
+python-dotenv
+django-environ
+python-decouple
+
+# Caching & Redis
 django-redis
 redis
+
+# Cloud Storage
 django-cloudinary-storage
 cloudinary
-sentry-sdk[django]
+django-storages
+boto3
+
+# Image Processing
 Pillow
-beautifulsoup4
-htmlmin
-django-ratelimit
+
+# Web Server
+gunicorn
+whitenoise
+
+# Background Tasks
 celery
-django-cacheops
+
+# Error Tracking & Monitoring
+sentry-sdk[django]
+
+# Development & Debugging
 django-debug-toolbar
 django-extensions
 django-health-check
-django-cors-headers
-django-storages
-boto3
-psycopg2-binary
-gunicorn
-whitenoise
+
+# Performance & Optimization
+django-cacheops
+htmlmin
+beautifulsoup4
+
+# Rate Limiting
+django-ratelimit
+
+# System Monitoring
 psutil
+
+# HTTP & Requests
+requests
+requests-toolbelt
+urllib3
+certifi
+charset-normalizer
+idna
+
+# Security
+cryptography
+cffi
+pycparser
+
+# Utilities
+packaging
+typing_extensions
+importlib-metadata
+zipp
+filelock
+platformdirs
+distlib
+virtualenv
+keyring
+shellingham
+colorama
+cleo
+crashtest
+dulwich
+fastjsonschema
+installer
+jaraco.classes
+jaraco.context
+jaraco.functools
+more-itertools
+msgpack
+pkginfo
+pyproject_hooks
+tomli
+tomli-w
+trove-classifiers
+RapidFuzz
