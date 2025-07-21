@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: vics-royal-web
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "./start.sh"
+    plan: free
+    envVars:
+      - key: DJANGO_SUPERUSER_USERNAME
+        value: admin
+      - key: DJANGO_SUPERUSER_EMAIL
+        value: admin@example.com
+      - key: DJANGO_SUPERUSER_PASSWORD
+        value: yourpassword
+      # Add all other required environment variables here
+
+  - type: worker
+    name: vics-royal-celery-worker
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "celery -A vics_royal worker --loglevel=info --concurrency=2"
+    plan: free
+    envVars:
+      - fromGroup: vics-royal-web
+
+  - type: worker
+    name: vics-royal-celery-beat
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "celery -A vics_royal beat --loglevel=info"
+    plan: free
+    envVars:
+      - fromGroup: vics-royal-web 
