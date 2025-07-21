@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Product Categories - Vics Royal Beauty{% endblock %}
+
+{% block content %}
+<div class="bg-gradient-to-br from-pink-50 to-teal-50 min-h-screen py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Page Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-4">Shop by Category</h1>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                Explore our curated collection of premium hair care products
+            </p>
+        </div>
+
+        <!-- Categories Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {% for category in categories %}
+            <div class="group">
+                <a href="{% url 'products:product_list_by_category' category.slug %}" class="block">
+                    <div class="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden transform transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl border border-pink-100">
+                        <div class="relative">
+                            {% if category.image %}
+                            <img src="{{ category.image.url }}" alt="{{ category.name }}" class="w-full h-48 object-cover">
+                            {% else %}
+                            <div class="w-full h-48 bg-pink-100 flex items-center justify-center">
+                                <span class="text-pink-400">No Image</span>
+                            </div>
+                            {% endif %}
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ category.name }}</h3>
+                            <p class="text-gray-600 text-sm mb-4">{{ category.description|truncatewords:15 }}</p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-500">{{ category.products.count }} products</span>
+                                <span class="inline-flex items-center text-pink-600 font-medium group-hover:text-pink-700 transition-colors duration-300">
+                                    Shop Now
+                                    <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-12">
+                <div class="mx-auto w-24 h-24 bg-pink-100 rounded-full flex items-center justify-center mb-6">
+                    <svg class="w-12 h-12 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">No categories available</h3>
+                <p class="text-gray-600">Check back soon for new product categories.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

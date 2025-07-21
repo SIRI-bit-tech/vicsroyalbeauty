@@ -1,0 +1,270 @@
+/* Vics Royal Beauty - Updated Color Scheme */
+
+:root {
+  /* Primary Fuchsia/Pink Colors */
+  --primary-50: #FDF2F8;
+  --primary-100: #FCE7F3;
+  --primary-200: #FBCFE8;
+  --primary-300: #F9A8D4;
+  --primary-400: #F472B6;
+  --primary-500: #EC4899;
+  --primary-600: #DB2777;
+  --primary-700: #BE185D;
+  --primary-800: #9D174D;
+  --primary-900: #831843;
+
+  /* Accent Teal Colors */
+  --accent-50: #F0FDFA;
+  --accent-100: #CCFBF1;
+  --accent-200: #99F6E4;
+  --accent-300: #5EEAD4;
+  --accent-400: #2DD4BF;
+  --accent-500: #14B8A6;
+  --accent-600: #0D9488;
+  --accent-700: #0F766E;
+  --accent-800: #115E59;
+  --accent-900: #134E4A;
+
+  /* Fuchsia Colors */
+  --fuchsia-50: #FDF2F8;
+  --fuchsia-100: #FCE7F3;
+  --fuchsia-200: #FBCFE8;
+  --fuchsia-300: #F9A8D4;
+  --fuchsia-400: #F472B6;
+  --fuchsia-500: #EC4899;
+  --fuchsia-600: #DB2777;
+  --fuchsia-700: #BE185D;
+  --fuchsia-800: #9D174D;
+  --fuchsia-900: #831843;
+}
+
+/* Global Styles */
+body {
+  font-family: 'Montserrat', sans-serif;
+  background-color: var(--primary-50);
+  color: var(--primary-900);
+}
+
+/* Typography */
+.font-serif {
+  font-family: 'Playfair Display', serif;
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--primary-700);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-800);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(190, 24, 93, 0.3);
+}
+
+.btn-accent {
+  background-color: var(--accent-500);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-accent:hover {
+  background-color: var(--accent-600);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
+}
+
+/* Navigation */
+.navbar {
+  background-color: white;
+  box-shadow: 0 2px 10px rgba(190, 24, 93, 0.1);
+}
+
+.navbar-brand {
+  color: var(--primary-700) !important;
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+}
+
+.nav-link {
+  color: var(--primary-700) !important;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: var(--accent-500) !important;
+}
+
+/* Cards */
+.card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(190, 24, 93, 0.1);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(190, 24, 93, 0.15);
+}
+
+/* Forms */
+.form-control {
+  border: 2px solid var(--primary-100);
+  border-radius: 8px;
+  padding: 12px 16px;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: var(--primary-400);
+  box-shadow: 0 0 0 3px rgba(244, 114, 182, 0.1);
+  outline: none;
+}
+
+/* Alerts */
+.alert-success {
+  background-color: var(--primary-50);
+  border: 1px solid var(--primary-200);
+  color: var(--primary-800);
+}
+
+.alert-error {
+  background-color: var(--accent-50);
+  border: 1px solid var(--accent-200);
+  color: var(--accent-800);
+}
+
+/* Footer */
+.footer {
+  background-color: var(--primary-900);
+  color: white;
+}
+
+.footer a {
+  color: var(--primary-100);
+  transition: color 0.3s ease;
+}
+
+.footer a:hover {
+  color: var(--accent-500);
+}
+
+/* Hero Section */
+.hero {
+  background: linear-gradient(135deg, var(--primary-700) 0%, var(--primary-600) 100%);
+  color: white;
+}
+
+/* Product Cards */
+.product-card {
+  background-color: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(190, 24, 93, 0.1);
+  transition: all 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 40px rgba(190, 24, 93, 0.2);
+}
+
+.product-price {
+  color: var(--primary-700);
+  font-weight: 700;
+}
+
+.product-sale-price {
+  color: var(--accent-600);
+  font-weight: 700;
+}
+
+/* Newsletter */
+.newsletter-section {
+  background: linear-gradient(135deg, var(--primary-700) 0%, var(--primary-600) 100%);
+  color: white;
+}
+
+/* Loading Spinner */
+.spinner {
+  border: 3px solid var(--primary-100);
+  border-top: 3px solid var(--primary-700);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--primary-50);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-400);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-600);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .btn-primary, .btn-accent {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+  
+  .card {
+    margin-bottom: 20px;
+  }
+}
+
+/* Animation Classes */
+.fade-in {
+  animation: fadeIn 0.6s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-in-left {
+  animation: slideInLeft 0.6s ease-out;
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.slide-in-right {
+  animation: slideInRight 0.6s ease-out;
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+} 

@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About Us - Vics Royal Beauty{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-gradient-to-r from-pink-50 to-teal-50 py-16">
+    <div class="container mx-auto px-4">
+        <div class="text-center">
+            <h1 class="text-4xl md:text-5xl font-serif font-bold text-gray-900 mb-4">About Vics Royal Beauty</h1>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                Discover the story behind Nigeria's premier destination for premium hair care products and beauty essentials.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Our Story Section -->
+<section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+                <h2 class="text-3xl font-serif font-bold text-gray-900 mb-6">Our Story</h2>
+                <p class="text-lg text-gray-600 mb-6">
+                    Founded with a passion for beauty and excellence, Vics Royal Beauty has been at the forefront of the Nigerian beauty industry since our inception. We understand that every individual deserves access to premium quality hair care products that enhance their natural beauty.
+                </p>
+                <p class="text-lg text-gray-600 mb-6">
+                    Our journey began with a simple mission: to provide Nigerian women with the finest hair care products from around the world, combined with exceptional customer service and expert advice.
+                </p>
+                <p class="text-lg text-gray-600">
+                    Today, we're proud to be the trusted destination for beauty enthusiasts across Nigeria, offering a curated selection of premium products that celebrate diversity and promote healthy, beautiful hair.
+                </p>
+            </div>
+            <div class="relative">
+                <img src="{% static 'images/about-story.jpg' %}" alt="Our Story" class="rounded-lg shadow-lg">
+                <div class="absolute inset-0 bg-gradient-to-r from-pink-600/20 to-teal-500/20 rounded-lg"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Mission & Vision Section -->
+<section class="py-16 bg-gradient-to-br from-pink-50 to-teal-50">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <!-- Mission -->
+            <div class="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-8 border border-pink-100">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-serif font-bold text-gray-900">Our Mission</h3>
+                </div>
+                <p class="text-gray-600 text-center">
+                    To empower individuals with premium beauty products and expert knowledge, fostering confidence and celebrating the unique beauty of every Nigerian woman.
+                </p>
+            </div>
+
+            <!-- Vision -->
+            <div class="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-8 border border-pink-100">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-serif font-bold text-gray-900">Our Vision</h3>
+                </div>
+                <p class="text-gray-600 text-center">
+                    To become the leading beauty destination in Africa, setting industry standards for quality, innovation, and customer satisfaction.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Values Section -->
+<section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-serif font-bold text-gray-900 mb-4">Our Values</h2>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                The principles that guide everything we do at Vics Royal Beauty
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- Quality -->
+            <div class="text-center">
+                <div class="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Quality</h3>
+                <p class="text-gray-600">We never compromise on quality, ensuring every product meets the highest standards.</p>
+            </div>
+
+            <!-- Innovation -->
+            <div class="text-center">
+                <div class="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Innovation</h3>
+                <p class="text-gray-600">We stay ahead of beauty trends and embrace new technologies and products.</p>
+            </div>
+
+            <!-- Customer Focus -->
+            <div class="text-center">
+                <div class="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Customer Focus</h3>
+                <p class="text-gray-600">Our customers are at the heart of everything we do, and their satisfaction is our priority.</p>
+            </div>
+
+            <!-- Integrity -->
+            <div class="text-center">
+                <div class="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Integrity</h3>
+                <p class="text-gray-600">We conduct business with honesty, transparency, and ethical practices.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Section -->
+<section class="py-16 bg-gradient-to-br from-pink-50 to-teal-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-serif font-bold text-gray-900 mb-4">Meet Our Team</h2>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                The passionate individuals behind Vics Royal Beauty's success
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Team Member 1 -->
+            <div class="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden border border-pink-100">
+                <img src="{% static 'images/team-1.jpg' %}" alt="Team Member" class="w-full h-64 object-cover">
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Victoria Okechukwu</h3>
+                    <p class="text-pink-600 font-medium mb-3">Founder & CEO</p>
+                    <p class="text-gray-600">With over 15 years of experience in the beauty industry, Victoria leads our company with passion and expertise.</p>
+                </div>
+            </div>
+
+            <!-- Team Member 2 -->
+            <div class="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden border border-pink-100">
+                <img src="{% static 'images/team-2.jpg' %}" alt="Team Member" class="w-full h-64 object-cover">
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Sarah Johnson</h3>
+                    <p class="text-teal-600 font-medium mb-3">Head of Operations</p>
+                    <p class="text-gray-600">Sarah ensures smooth operations and maintains our high standards of customer service excellence.</p>
+                </div>
+            </div>
+
+            <!-- Team Member 3 -->
+            <div class="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden border border-pink-100">
+                <img src="{% static 'images/team-3.jpg' %}" alt="Team Member" class="w-full h-64 object-cover">
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Michael Chen</h3>
+                    <p class="text-pink-600 font-medium mb-3">Product Specialist</p>
+                    <p class="text-gray-600">Michael's expertise in hair care products helps us curate the best selection for our customers.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-16 bg-gradient-to-r from-pink-600 to-teal-500">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-3xl font-serif font-bold text-white mb-4">Ready to Experience Premium Beauty?</h2>
+        <p class="text-xl text-pink-100 mb-8 max-w-2xl mx-auto">
+            Join thousands of satisfied customers who trust Vics Royal Beauty for their beauty needs.
+        </p>
+        <a href="{% url 'products:categories' %}" 
+           class="inline-flex items-center px-8 py-4 border-2 border-white text-white font-semibold rounded-lg hover:bg-white hover:text-pink-600 transition-all duration-300">
+            Shop Now
+        </a>
+    </div>
+</section>
+{% endblock %} 

@@ -1,0 +1,458 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Vics Royal Beauty - Luxury Hair Care{% endblock %}
+
+{% block content %}
+<!-- Hero Carousel Section -->
+<div class="relative overflow-hidden bg-gray-900">
+    <!-- Carousel container -->
+    <div id="hero-carousel" class="relative w-full">
+        <!-- Slides -->
+        <div class="carousel-slides relative h-[70vh] md:h-[80vh] lg:h-[90vh] transition-transform duration-700">
+            <!-- Slide 1 -->
+            <div class="carousel-slide absolute inset-0 w-full h-full opacity-0 transition-opacity duration-700">
+                <div class="absolute inset-0 bg-gradient-to-b from-black/60 to-black/30"></div>
+                <img src="{% static 'images/carousel/slide1.jpg' %}" alt="Luxury Hair Care" class="w-full h-full object-cover" />
+                <div class="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-4 transform transition-all duration-700 translate-y-8 opacity-0">
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 font-serif">
+                        Welcome to Vics Royal Beauty
+                    </h1>
+                    <p class="text-lg md:text-xl lg:text-2xl mb-8 max-w-2xl">
+                        Discover Luxury Hair Care at Its Finest
+                    </p>
+                    <a href="{% url 'products:categories' %}"
+                       class="bg-white text-pink-600 px-8 py-3 rounded-full font-semibold hover:bg-pink-50 hover:scale-105 transform transition-all duration-300 shadow-lg">
+                        Shop Now
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Slide 2 -->
+            <div class="carousel-slide absolute inset-0 w-full h-full opacity-0 transition-opacity duration-700">
+                <div class="absolute inset-0 bg-gradient-to-b from-black/60 to-black/30"></div>
+                <img src="{% static 'images/carousel/slide2.jpeg' %}" alt="Premium Collection" class="w-full h-full object-cover" />
+                <div class="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-4 transform transition-all duration-700 translate-y-8 opacity-0">
+                    <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 font-serif">
+                        Premium Collection
+                    </h2>
+                    <p class="text-lg md:text-xl lg:text-2xl mb-8 max-w-2xl">
+                        Elevate Your Style with Our Exclusive Range
+                    </p>
+                    <a href="{% url 'products:categories' %}"
+                       class="bg-white text-pink-600 px-8 py-3 rounded-full font-semibold hover:bg-pink-50 hover:scale-105 transform transition-all duration-300 shadow-lg">
+                        Explore Collection
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Slide 3 -->
+            <div class="carousel-slide absolute inset-0 w-full h-full opacity-0 transition-opacity duration-700">
+                <div class="absolute inset-0 bg-gradient-to-b from-black/60 to-black/30"></div>
+                <img src="{% static 'images/carousel/slide3.jpg' %}" alt="New Arrivals" class="w-full h-full object-cover" />
+                <div class="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-4 transform transition-all duration-700 translate-y-8 opacity-0">
+                    <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 font-serif">
+                        New Arrivals
+                    </h2>
+                    <p class="text-lg md:text-xl lg:text-2xl mb-8 max-w-2xl">
+                        Be the First to Wear Our Latest Styles
+                    </p>
+                    <a href="{% url 'products:product_list' %}?new_arrivals=true"
+                       class="bg-white text-pink-600 px-8 py-3 rounded-full font-semibold hover:bg-pink-50 hover:scale-105 transform transition-all duration-300 shadow-lg">
+                        View New Arrivals
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation arrows -->
+        <button id="prev-btn" class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all duration-300">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+        </button>
+        <button id="next-btn" class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all duration-300">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+        </button>
+
+        <!-- Dots indicator -->
+        <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+            <button class="dot w-3 h-3 bg-white/50 rounded-full transition-all duration-300"></button>
+            <button class="dot w-3 h-3 bg-white/50 rounded-full transition-all duration-300"></button>
+            <button class="dot w-3 h-3 bg-white/50 rounded-full transition-all duration-300"></button>
+        </div>
+    </div>
+</div>
+
+<!-- Featured Categories Section -->
+<section class="py-16 bg-gradient-to-br from-pink-50 to-teal-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-4">Shop by Category</h2>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                Explore our curated collection of premium hair care products
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {% for category in featured_categories %}
+            <div class="group">
+                                        <a href="{% url 'products:product_list_by_category' category.slug %}" class="block">
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden transform transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl border border-pink-100">
+                        <div class="relative">
+                            {% if category.image %}
+                            <img src="{{ category.image.url }}" alt="{{ category.name }}" class="w-full h-48 object-cover">
+                            {% else %}
+                            <div class="w-full h-48 bg-pink-100 flex items-center justify-center">
+                                <span class="text-pink-400">No Image</span>
+                            </div>
+                            {% endif %}
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ category.name }}</h3>
+                            <p class="text-gray-600 text-sm mb-4">{{ category.description|truncatewords:15 }}</p>
+                            <span class="inline-flex items-center text-pink-600 font-medium group-hover:text-pink-700 transition-colors duration-300">
+                                Shop Now
+                                <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products Section -->
+<section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-4">Featured Products</h2>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                Discover our most popular and trending hair care essentials
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {% for product in featured_products %}
+            <div class="group">
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden transform transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl border border-pink-100">
+                    <div class="relative">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-64 object-cover">
+                        {% else %}
+                        <div class="w-full h-64 bg-pink-100 flex items-center justify-center">
+                            <span class="text-pink-400">No Image</span>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Quick actions overlay -->
+                        <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center space-x-4">
+                            <button onclick="addToCart({{ product.id }})" 
+                                    class="bg-white text-pink-600 p-3 rounded-full hover:bg-pink-50 transition-colors duration-300">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"></path>
+                                </svg>
+                            </button>
+                            <button onclick="addToWishlist({{ product.id }})" 
+                                    class="bg-white text-pink-600 p-3 rounded-full hover:bg-pink-50 transition-colors duration-300">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ product.name }}</h3>
+                        <p class="text-gray-600 text-sm mb-4">{{ product.description|truncatewords:10 }}</p>
+                        
+                        <div class="flex items-center justify-between">
+                            <div>
+                                {% if product.is_on_sale %}
+                                <p class="text-lg font-bold text-pink-600">₦{{ product.sale_price }}</p>
+                                <p class="text-sm text-gray-500 line-through">₦{{ product.price }}</p>
+                                {% else %}
+                                <p class="text-lg font-bold text-pink-600">₦{{ product.price }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <a href="{% url 'products:product_detail' product.slug %}" 
+                               class="bg-gradient-to-r from-pink-600 to-teal-500 hover:from-pink-700 hover:to-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-12">
+            <a href="{% url 'products:product_list' %}" 
+               class="inline-flex items-center px-8 py-4 border-2 border-pink-600 text-pink-600 font-semibold rounded-lg hover:bg-pink-600 hover:text-white transition-all duration-300">
+                View All Products
+                <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="py-16 bg-gradient-to-r from-pink-600 to-teal-500">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-3xl md:text-4xl font-serif font-bold text-white mb-4">Stay Updated</h2>
+        <p class="text-xl text-pink-100 mb-8 max-w-2xl mx-auto">
+            Subscribe to our newsletter for exclusive offers, new arrivals, and beauty tips
+        </p>
+        
+        <form class="max-w-md mx-auto flex space-x-4">
+            <input type="email" placeholder="Enter your email" 
+                   class="flex-1 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/50">
+            <button type="submit" 
+                    class="bg-white text-pink-600 px-6 py-3 rounded-lg font-semibold hover:bg-pink-50 transition-colors duration-300">
+                Subscribe
+            </button>
+        </form>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="py-16 bg-gradient-to-br from-pink-50 to-teal-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-4">What Our Customers Say</h2>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                Real experiences from our satisfied customers
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Testimonial 1 -->
+            <div class="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-8 border border-pink-100">
+                <div class="flex items-center mb-4">
+                    <div class="flex text-pink-500">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-gray-600 mb-4">
+                    "The quality of products at Vics Royal Beauty is exceptional. I've never been disappointed with any purchase!"
+                </p>
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center mr-3">
+                        <span class="text-pink-600 font-semibold">A</span>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-900">Aisha Mohammed</p>
+                        <p class="text-sm text-gray-500">Lagos, Nigeria</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Testimonial 2 -->
+            <div class="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-8 border border-pink-100">
+                <div class="flex items-center mb-4">
+                    <div class="flex text-pink-500">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-gray-600 mb-4">
+                    "Fast delivery and excellent customer service. The team at Vics Royal Beauty really cares about their customers."
+                </p>
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center mr-3">
+                        <span class="text-teal-600 font-semibold">F</span>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-900">Fatima Hassan</p>
+                        <p class="text-sm text-gray-500">Abuja, Nigeria</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Testimonial 3 -->
+            <div class="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-8 border border-pink-100">
+                <div class="flex items-center mb-4">
+                    <div class="flex text-pink-500">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-gray-600 mb-4">
+                    "I love the variety of products available. From natural hair care to styling essentials, they have everything I need."
+                </p>
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center mr-3">
+                        <span class="text-pink-600 font-semibold">K</span>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-900">Kemi Adebayo</p>
+                        <p class="text-sm text-gray-500">Port Harcourt, Nigeria</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+// Carousel functionality
+let currentSlide = 0;
+const slides = document.querySelectorAll('.carousel-slide');
+const dots = document.querySelectorAll('.dot');
+
+function showSlide(index) {
+    slides.forEach((slide, i) => {
+        slide.style.opacity = i === index ? '1' : '0';
+        slide.style.transform = i === index ? 'translateY(0)' : 'translateY(8px)';
+    });
+    
+    dots.forEach((dot, i) => {
+        dot.classList.toggle('bg-white', i === index);
+        dot.classList.toggle('bg-white/50', i !== index);
+    });
+}
+
+function nextSlide() {
+    currentSlide = (currentSlide + 1) % slides.length;
+    showSlide(currentSlide);
+}
+
+function prevSlide() {
+    currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+    showSlide(currentSlide);
+}
+
+// Event listeners
+document.getElementById('next-btn').addEventListener('click', nextSlide);
+document.getElementById('prev-btn').addEventListener('click', prevSlide);
+
+dots.forEach((dot, index) => {
+    dot.addEventListener('click', () => {
+        currentSlide = index;
+        showSlide(currentSlide);
+    });
+});
+
+// Auto-advance slides
+setInterval(nextSlide, 5000);
+
+// Initialize first slide
+showSlide(0);
+
+// Product functions
+function addToCart(productId) {
+    fetch(`/cart/add/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            quantity: 1
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update cart count and show success message
+            updateCartCount(data.cart_count);
+            showNotification('Product added to cart successfully!', 'success');
+        } else {
+            showNotification('Failed to add product to cart.', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred. Please try again.', 'error');
+    });
+}
+
+function addToWishlist(productId) {
+    fetch(`/wishlist/add/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Refresh the page to update the wishlist
+            location.reload();
+        } else {
+            showNotification('Failed to add product to wishlist.', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred. Please try again.', 'error');
+    });
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %} 

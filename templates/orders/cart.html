@@ -1,0 +1,313 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shopping Cart - Vics Royal Beauty{% endblock %}
+
+{% block content %}
+<div class="bg-gradient-to-br from-pink-50 to-teal-50 min-h-screen py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Shopping Cart</h1>
+            <p class="mt-2 text-gray-600">Review your items and proceed to checkout</p>
+        </div>
+
+        {% if cart_items %}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Cart Items -->
+            <div class="lg:col-span-2">
+                <div class="bg-white/90 backdrop-blur-sm shadow rounded-lg border border-pink-100">
+                    <div class="p-6">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-6">Cart Items ({{ cart_items|length }})</h2>
+                        
+                        <div class="space-y-6">
+                            {% for item in cart_items %}
+                            <div class="flex items-center space-x-4 border-b border-pink-100 pb-6 last:border-b-0">
+                                <!-- Product Image -->
+                                <div class="flex-shrink-0">
+                                    {% if item.product.images.first %}
+                                    <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="w-20 h-20 object-cover rounded-lg">
+                                    {% else %}
+                                    <div class="w-20 h-20 bg-pink-100 rounded-lg flex items-center justify-center">
+                                        <span class="text-pink-400 text-xs">No Image</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Product Details -->
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-medium text-gray-900">{{ item.product.name }}</h3>
+                                    <p class="text-sm text-gray-500">{{ item.product.description|truncatewords:10 }}</p>
+                                    <div class="mt-2">
+                                        {% if item.product.is_on_sale %}
+                                        <span class="text-lg font-bold text-pink-600">₦{{ item.product.sale_price }}</span>
+                                        <span class="text-sm text-gray-500 line-through ml-2">₦{{ item.product.price }}</span>
+                                        {% else %}
+                                        <span class="text-lg font-bold text-pink-600">₦{{ item.product.price }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Quantity Controls -->
+                                <div class="flex items-center space-x-2">
+                                    <button onclick="updateQuantity({{ item.id }}, -1)" 
+                                            class="w-8 h-8 bg-pink-100 text-pink-600 rounded-full flex items-center justify-center hover:bg-pink-200 transition-colors duration-300">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                                        </svg>
+                                    </button>
+                                    <span class="w-12 text-center font-medium">{{ item.quantity }}</span>
+                                    <button onclick="updateQuantity({{ item.id }}, 1)" 
+                                            class="w-8 h-8 bg-pink-100 text-pink-600 rounded-full flex items-center justify-center hover:bg-pink-200 transition-colors duration-300">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <!-- Remove Button -->
+                                <button onclick="showRemoveConfirmation({{ item.id }}, '{{ item.product.name }}')" 
+                                        class="text-red-500 hover:text-red-700 transition-colors duration-300">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="lg:col-span-1">
+                <div class="bg-white/90 backdrop-blur-sm shadow rounded-lg border border-pink-100">
+                    <div class="p-6">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-6">Order Summary</h2>
+                        
+                        <div class="space-y-4">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Subtotal</span>
+                                <span class="font-medium">₦{{ cart_total }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Shipping</span>
+                                <span class="font-medium">₦{{ shipping_cost }}</span>
+                            </div>
+                            {% if discount_amount > 0 %}
+                            <div class="flex justify-between text-green-600">
+                                <span>Discount</span>
+                                <span>-₦{{ discount_amount }}</span>
+                            </div>
+                            {% endif %}
+                            <div class="border-t border-pink-100 pt-4">
+                                <div class="flex justify-between">
+                                    <span class="text-lg font-semibold text-gray-900">Total</span>
+                                    <span class="text-lg font-bold text-pink-600">₦{{ total_amount }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Coupon Code -->
+                        <div class="mt-6">
+                            <form method="post" class="space-y-4">
+                                {% csrf_token %}
+                                <div>
+                                    <label for="coupon_code" class="block text-sm font-medium text-gray-700 mb-2">Coupon Code</label>
+                                    <div class="flex space-x-2">
+                                        <input type="text" name="coupon_code" id="coupon_code" 
+                                               class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                               placeholder="Enter coupon code">
+                                        <button type="submit" 
+                                                class="px-4 py-2 bg-gradient-to-r from-pink-600 to-teal-500 hover:from-pink-700 hover:to-teal-600 text-white rounded-lg font-medium transition-all duration-300">
+                                            Apply
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Checkout Button -->
+                        <div class="mt-6">
+                            <a href="{% url 'orders:checkout' %}" 
+                               class="w-full bg-gradient-to-r from-pink-600 to-teal-500 hover:from-pink-700 hover:to-teal-600 text-white py-3 px-6 rounded-lg font-semibold text-center block transition-all duration-300 transform hover:scale-105">
+                                Proceed to Checkout
+                            </a>
+                        </div>
+
+                        <!-- Continue Shopping -->
+                        <div class="mt-4">
+                            <a href="{% url 'products:categories' %}" 
+                               class="w-full border border-pink-300 text-pink-600 py-3 px-6 rounded-lg font-semibold text-center block hover:bg-pink-50 transition-colors duration-300">
+                                Continue Shopping
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <!-- Empty Cart -->
+        <div class="bg-white/90 backdrop-blur-sm shadow rounded-lg border border-pink-100">
+            <div class="p-12 text-center">
+                <div class="mx-auto w-24 h-24 bg-pink-100 rounded-full flex items-center justify-center mb-6">
+                    <svg class="w-12 h-12 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Your cart is empty</h3>
+                <p class="text-gray-600 mb-6">Looks like you haven't added any items to your cart yet.</p>
+                <a href="{% url 'products:categories' %}" 
+                   class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gradient-to-r from-pink-600 to-teal-500 hover:from-pink-700 hover:to-teal-600 transition-all duration-300">
+                    Start Shopping
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Custom Confirmation Modal -->
+<div id="removeModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+        <div class="p-6">
+            <div class="flex items-center mb-4">
+                <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                    <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="text-center">
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Remove Item</h3>
+                <p class="text-sm text-gray-500 mb-6" id="removeItemText">
+                    Are you sure you want to remove this item from your cart?
+                </p>
+                <div class="flex space-x-3">
+                    <button id="cancelRemove" 
+                            class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-300">
+                        Cancel
+                    </button>
+                    <button id="confirmRemove" 
+                            class="flex-1 px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg transition-all duration-300">
+                        Remove
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let itemToRemove = null;
+
+function showRemoveConfirmation(itemId, productName) {
+    itemToRemove = itemId;
+    document.getElementById('removeItemText').textContent = `Are you sure you want to remove "${productName}" from your cart?`;
+    document.getElementById('removeModal').classList.remove('hidden');
+}
+
+function hideRemoveModal() {
+    document.getElementById('removeModal').classList.add('hidden');
+    itemToRemove = null;
+}
+
+function updateQuantity(itemId, change) {
+    fetch(`/orders/cart/update/${itemId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            change: change
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update the quantity display
+            const quantityElement = document.querySelector(`button[onclick="updateQuantity(${itemId}, -1)"]`).nextElementSibling;
+            quantityElement.textContent = data.new_quantity;
+            
+            // Update cart count in header if it exists
+            const cartCountElement = document.getElementById('cart-count');
+            if (cartCountElement && data.cart_count !== undefined) {
+                cartCountElement.textContent = data.cart_count;
+            }
+            
+            // Update totals
+            const cartTotalElement = document.querySelector('.text-lg.font-semibold.text-gray-900').nextElementSibling;
+            if (cartTotalElement) {
+                cartTotalElement.textContent = `₦${data.cart_total}`;
+            }
+            
+            // If quantity becomes 0, remove the item from display
+            if (data.new_quantity <= 0) {
+                const itemElement = quantityElement.closest('.flex.items-center.space-x-4');
+                if (itemElement) {
+                    itemElement.remove();
+                }
+                
+                // Check if cart is empty and show empty cart message
+                const cartItemsContainer = document.querySelector('.space-y-6');
+                if (cartItemsContainer && cartItemsContainer.children.length === 0) {
+                    location.reload(); // Reload to show empty cart
+                }
+            }
+        } else {
+            alert('Error updating quantity: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating quantity');
+    });
+}
+
+function removeItem(itemId) {
+    fetch(`/orders/cart/remove/${itemId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error removing item');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error removing item');
+    });
+}
+
+// Event listeners for modal
+document.getElementById('cancelRemove').addEventListener('click', hideRemoveModal);
+document.getElementById('confirmRemove').addEventListener('click', function() {
+    if (itemToRemove) {
+        removeItem(itemToRemove);
+        hideRemoveModal();
+    }
+});
+
+// Close modal when clicking outside
+document.getElementById('removeModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        hideRemoveModal();
+    }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        hideRemoveModal();
+    }
+});
+</script>
+{% endblock %} 

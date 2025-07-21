@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order History - Vics Royal Beauty{% endblock %}
+
+{% block content %}
+<div class="bg-gradient-to-br from-pink-50 to-teal-50 min-h-screen py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Order History</h1>
+            <p class="mt-2 text-gray-600">Track your past orders and their status</p>
+        </div>
+
+        <!-- Order History Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- Sidebar Navigation -->
+            <div class="lg:col-span-1">
+                <div class="bg-white/90 backdrop-blur-sm shadow rounded-lg border border-pink-100">
+                    <nav class="space-y-1">
+                        <a href="{% url 'accounts:profile' %}" class="block px-4 py-2 text-gray-600 hover:bg-pink-50 hover:text-gray-900">Profile Overview</a>
+                        <a href="{% url 'accounts:order_history' %}" class="block px-4 py-2 text-gray-900 hover:bg-pink-50 border-l-4 border-pink-500">Order History</a>
+                        <a href="{% url 'accounts:wishlist' %}" class="block px-4 py-2 text-gray-600 hover:bg-pink-50 hover:text-gray-900">Wishlist</a>
+                        <a href="{% url 'accounts:profile_edit' %}" class="block px-4 py-2 text-gray-600 hover:bg-pink-50 hover:text-gray-900">Edit Profile</a>
+                        <a href="{% url 'accounts:change_password' %}" class="block px-4 py-2 text-gray-600 hover:bg-pink-50 hover:text-gray-900">Change Password</a>
+                        <form method="post" action="{% url 'accounts:logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="w-full text-left px-4 py-2 text-gray-600 hover:bg-pink-50 hover:text-gray-900">Logout</button>
+                        </form>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Order List -->
+            <div class="lg:col-span-3">
+                {% if orders %}
+                <div class="space-y-6">
+                    {% for order in orders %}
+                    <div class="bg-white/90 backdrop-blur-sm shadow rounded-lg border border-pink-100 overflow-hidden">
+                        <!-- Order Header -->
+                        <div class="bg-gradient-to-r from-pink-600 to-teal-500 px-6 py-4">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-white">Order #{{ order.id }}</h3>
+                                    <p class="text-pink-100">{{ order.created_at|date:"F j, Y" }}</p>
+                                </div>
+                                <div class="text-right">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white/20 text-white">
+                                        {{ order.get_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Order Items -->
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                {% for item in order.items.all %}
+                                <div class="flex items-center space-x-4 border-b border-pink-100 pb-4 last:border-b-0">
+                                    <div class="flex-shrink-0">
+                                        {% if item.product.image %}
+                                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="w-16 h-16 object-cover rounded-lg">
+                                        {% else %}
+                                        <div class="w-16 h-16 bg-pink-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-pink-400 text-xs">No Image</span>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="text-sm font-medium text-gray-900">{{ item.product.name }}</h4>
+                                        <p class="text-sm text-gray-500">Quantity: {{ item.quantity }}</p>
+                                        <p class="text-sm font-medium text-pink-600">₦{{ item.price }}</p>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Order Summary -->
+                            <div class="mt-6 pt-6 border-t border-pink-100">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <p class="text-sm text-gray-600">Total Amount</p>
+                                        <p class="text-lg font-bold text-gray-900">₦{{ order.total_amount }}</p>
+                                    </div>
+                                    <div class="space-x-3">
+                                        <a href="{% url 'orders:order_detail' order.id %}" 
+                                           class="inline-flex items-center px-4 py-2 border border-pink-300 shadow-sm text-sm font-medium rounded-md text-pink-700 bg-white hover:bg-pink-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 transition-colors duration-300">
+                                            View Details
+                                        </a>
+                                        {% if order.status == 'delivered' %}
+                                        <button onclick="reorder({{ order.id }})" 
+                                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-pink-600 to-teal-500 hover:from-pink-700 hover:to-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 transition-all duration-300">
+                                            Reorder
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if orders.has_other_pages %}
+                <div class="mt-8 flex justify-center">
+                    <nav class="flex items-center space-x-2">
+                        {% if orders.has_previous %}
+                        <a href="?page={{ orders.previous_page_number }}" 
+                           class="px-3 py-2 border border-pink-300 text-pink-700 bg-white hover:bg-pink-50 rounded-md transition-colors duration-300">
+                            Previous
+                        </a>
+                        {% endif %}
+
+                        {% for num in orders.paginator.page_range %}
+                        {% if orders.number == num %}
+                        <span class="px-3 py-2 bg-gradient-to-r from-pink-600 to-teal-500 text-white rounded-md">{{ num }}</span>
+                        {% elif num > orders.number|add:'-3' and num < orders.number|add:'3' %}
+                        <a href="?page={{ num }}" 
+                           class="px-3 py-2 border border-pink-300 text-pink-700 bg-white hover:bg-pink-50 rounded-md transition-colors duration-300">
+                            {{ num }}
+                        </a>
+                        {% endif %}
+                        {% endfor %}
+
+                        {% if orders.has_next %}
+                        <a href="?page={{ orders.next_page_number }}" 
+                           class="px-3 py-2 border border-pink-300 text-pink-700 bg-white hover:bg-pink-50 rounded-md transition-colors duration-300">
+                            Next
+                        </a>
+                        {% endif %}
+                    </nav>
+                </div>
+                {% endif %}
+
+                {% else %}
+                <div class="bg-white/90 backdrop-blur-sm shadow rounded-lg border border-pink-100">
+                    <div class="p-12 text-center">
+                        <div class="mx-auto w-24 h-24 bg-pink-100 rounded-full flex items-center justify-center mb-6">
+                            <svg class="w-12 h-12 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">No orders yet</h3>
+                        <p class="text-gray-600 mb-6">Start shopping to see your order history here.</p>
+                        <a href="{% url 'products:categories' %}" 
+                           class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gradient-to-r from-pink-600 to-teal-500 hover:from-pink-700 hover:to-teal-600 transition-all duration-300">
+                            Start Shopping
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function reorder(orderId) {
+    if (confirm('Would you like to reorder all items from this order?')) {
+        fetch(`/orders/reorder/${orderId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Items added to cart successfully!');
+                window.location.href = '/orders/cart/';
+            } else {
+                alert('Error adding items to cart');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error adding items to cart');
+        });
+    }
+}
+</script>
+{% endblock %} 
