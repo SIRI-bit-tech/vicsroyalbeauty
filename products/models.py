@@ -4,12 +4,15 @@ from django.urls import reverse
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.text import slugify
 import uuid
+from cloudinary.models import CloudinaryField
+from cloudinary import CloudinaryImage
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True)
     description = models.TextField(blank=True)
-    image = models.ImageField(upload_to='categories/', blank=True, null=True)
+    image = CloudinaryField('categories', blank=True, null=True, 
+                           transformation={'quality': 'auto', 'fetch_format': 'auto'})
     
     class Meta:
         verbose_name_plural = 'Categories'
@@ -25,6 +28,18 @@ class Category(models.Model):
     
     def get_absolute_url(self):
         return reverse('products:product_list_by_category', args=[self.slug])
+    
+    @property
+    def image_url(self):
+        """Get optimized image URL with Cloudinary transformations"""
+        if self.image:
+            return CloudinaryImage(str(self.image)).build_url(
+                transformation=[
+                    {'width': 400, 'height': 300, 'crop': 'fill', 'quality': 'auto'},
+                    {'fetch_format': 'auto'}
+                ]
+            )
+        return None
 
 class Product(models.Model):
     HAIR_CARE_SIZES = [
@@ -224,7 +239,7 @@ class Product(models.Model):
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, related_name='images', on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='products/')
+    image = CloudinaryField('products', transformation={'quality': 'auto', 'fetch_format': 'auto'})
     alt_text = models.CharField(max_length=200, blank=True)
     is_primary = models.BooleanField(default=False)
     
@@ -232,13 +247,49 @@ class ProductImage(models.Model):
         ordering = ['-is_primary', 'id']
     
     def __str__(self):
-        return f"Image for {self.product.name}"
+        return f"{self.product.name} - Image {self.id}"
     
     def save(self, *args, **kwargs):
-        if self.is_primary:
-            # Set all other images of this product to not primary
-            ProductImage.objects.filter(product=self.product).update(is_primary=False)
+        # Auto-generate alt text if not provided
+        if not self.alt_text:
+            self.alt_text = f"{self.product.name} product image"
         super().save(*args, **kwargs)
+    
+    @property
+    def thumbnail_url(self):
+        """Get thumbnail version of the image"""
+        if self.image:
+            return CloudinaryImage(str(self.image)).build_url(
+                transformation=[
+                    {'width': 150, 'height': 150, 'crop': 'fill', 'quality': 'auto'},
+                    {'fetch_format': 'auto'}
+                ]
+            )
+        return None
+    
+    @property
+    def medium_url(self):
+        """Get medium size version of the image"""
+        if self.image:
+            return CloudinaryImage(str(self.image)).build_url(
+                transformation=[
+                    {'width': 400, 'height': 400, 'crop': 'fill', 'quality': 'auto'},
+                    {'fetch_format': 'auto'}
+                ]
+            )
+        return None
+    
+    @property
+    def large_url(self):
+        """Get large size version of the image"""
+        if self.image:
+            return CloudinaryImage(str(self.image)).build_url(
+                transformation=[
+                    {'width': 800, 'height': 800, 'crop': 'fill', 'quality': 'auto'},
+                    {'fetch_format': 'auto'}
+                ]
+            )
+        return None
 
 class Review(models.Model):
     product = models.ForeignKey(Product, related_name='reviews', on_delete=models.CASCADE)

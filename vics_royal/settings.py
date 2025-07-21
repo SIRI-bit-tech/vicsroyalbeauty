@@ -14,9 +14,8 @@ import os
 import dj_database_url
 from pathlib import Path
 from dotenv import load_dotenv
-# import bugsnag
-# from bugsnag.django.middleware import BugsnagMiddleware
-
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 load_dotenv()
 
@@ -55,6 +54,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_tailwind',
     'tailwind',
+    'cloudinary_storage',
     
     # Local apps
     'core.apps.CoreConfig',
@@ -64,7 +64,6 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    # 'bugsnag.django.middleware.BugsnagMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -183,8 +182,71 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+# Initialize Glitchtip (Sentry)
+sentry_sdk.init(
+    dsn=os.getenv('GLITCHTIP_DSN'),
+    integrations=[DjangoIntegration()],
+    traces_sample_rate=1.0,
+    send_default_pii=True,
+    environment=os.getenv('ENVIRONMENT', 'production'),
+)
+
+# Cloudinary Configuration
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+    'SECURE': True,
+}
+
+# Use Cloudinary for media files
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
 # Static files compression and caching
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Redis Configuration for Caching
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': os.getenv('REDIS_URL', 'redis://localhost:6379/1'),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'PARSER_CLASS': 'redis.connection.HiredisParser',
+            'CONNECTION_POOL_CLASS': 'redis.BlockingConnectionPool',
+            'CONNECTION_POOL_CLASS_KWARGS': {
+                'max_connections': 50,
+                'timeout': 20,
+            },
+            'SERIALIZER': 'django_redis.serializers.json.JSONSerializer',
+            'COMPRESSOR': 'django_redis.compressors.zlib.ZlibCompressor',
+        },
+        'KEY_PREFIX': 'vics_royal',
+        'TIMEOUT': 60 * 15,  # 15 minutes default
+    },
+    'session': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': os.getenv('REDIS_URL', 'redis://localhost:6379/2'),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        },
+        'KEY_PREFIX': 'session',
+        'TIMEOUT': 60 * 60 * 24 * 7,  # 7 days
+    },
+    'long_term': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': os.getenv('REDIS_URL', 'redis://localhost:6379/3'),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        },
+        'KEY_PREFIX': 'long_term',
+        'TIMEOUT': 60 * 60 * 24 * 30,  # 30 days
+    }
+}
+
+# Session configuration
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'session'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
@@ -235,43 +297,10 @@ ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_VERIFICATION = 'none'  # Changed to none for now
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 
-# Performance Optimization Settings
-if DEBUG:
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-            'LOCATION': 'unique-snowflake',
-        }
-    }
-else:
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-            'LOCATION': os.getenv('REDIS_URL', 'redis://localhost:6379/0'),
-            'OPTIONS': {
-                'parser_class': 'redis.connection.PythonParser',
-                'pool_class': 'redis.BlockingConnectionPool',
-                'retry_on_timeout': True,
-                'socket_connect_timeout': 5,
-                'socket_timeout': 5,
-            }
-        }
-    }
-
 # Cache timeout settings
 CACHE_MIDDLEWARE_SECONDS = 60 * 15  # 15 minutes
 CACHE_MIDDLEWARE_KEY_PREFIX = 'vics_royal'
-
-# Cache middleware settings
 CACHE_MIDDLEWARE_ALIAS = 'default'
-
-# Initialize Bugsnag
-# bugsnag.configure(
-#     api_key=os.getenv('BUGSNAG_API_KEY'),
-#     project_root=BASE_DIR,
-#     release_stage=os.getenv('ENVIRONMENT', 'production'),
-#     notify_release_stages=['production', 'staging'],
-# )
 
 # Update the logging configuration
 LOGGING = {
@@ -349,7 +378,7 @@ else:
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
 
-# Add these settings for GlitchTip
+# Environment settings
 ENVIRONMENT = os.getenv('ENVIRONMENT', 'production')
 
 # Add image optimization settings
@@ -357,5 +386,3 @@ IMAGE_UPLOAD_MAX_SIZE = (800, 800)  # Maximum image dimensions
 IMAGE_QUALITY = 85  # JPEG quality
 IMAGE_FORMATS = ['JPEG', 'PNG']  # Allowed image formats
 
-# Bugsnag settings
-BUGSNAG_API_KEY = os.getenv('BUGSNAG_API_KEY')

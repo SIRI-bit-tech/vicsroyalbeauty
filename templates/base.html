@@ -714,35 +714,34 @@
     <!-- Error Tracking -->
     {% if not debug %}
     <script
-        src="//d2wy8f7a9ursnm.cloudfront.net/v7/bugsnag.min.js"
+        src="https://browser.sentry-cdn.com/7.0.0/bundle.min.js"
+        integrity="sha384-...your-integrity-hash..."
         crossorigin="anonymous"
     ></script>
     <script>
-        Bugsnag.start({
-            apiKey: '{{ BUGSNAG_API_KEY }}',
-            releaseStage: '{{ ENVIRONMENT }}',
-            enabledReleaseStages: ['production', 'staging'],
-            metadata: {
-                account: {
-                    id: '{{ request.user.id|default:"" }}',
-                    email: '{{ request.user.email|default:"" }}',
-          },
-        },
+        Sentry.init({
+            dsn: '{{ GLITCHTIP_DSN }}',
+            environment: '{{ ENVIRONMENT }}',
+            release: '1.0.0',
+            integrations: [
+                new Sentry.BrowserTracing(),
+                new Sentry.Replay(),
+            ],
+            tracesSampleRate: 1.0,
+            replaysSessionSampleRate: 0.1,
+            replaysOnErrorSampleRate: 1.0,
+            beforeSend(event, hint) {
+                // Add user context if available
+                if ('{{ request.user.id }}') {
+                    event.user = {
+                        id: '{{ request.user.id }}',
+                        email: '{{ request.user.email }}',
+                        username: '{{ request.user.username }}',
+                    };
+                }
+                return event;
+            },
         });
-
-      window.addEventListener('error', function (e) {
-            Bugsnag.notify(e.error);
-        });
-
-      window.addEventListener('unhandledrejection', function (e) {
-            Bugsnag.notify(e.reason);
-        });
-    </script>
-
-    <!-- Performance Monitoring -->
-    <script type="module">
-      import BugsnagPerformance from '//d2wy8f7a9ursnm.cloudfront.net/v1/bugsnag-performance.min.js';
-      BugsnagPerformance.start({ apiKey: '{{ BUGSNAG_API_KEY }}' });
     </script>
     {% endif %}
 </body>

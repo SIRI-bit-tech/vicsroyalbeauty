@@ -2,6 +2,8 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
+from cloudinary.models import CloudinaryField
+from cloudinary import CloudinaryImage
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -39,7 +41,8 @@ class CustomUser(AbstractUser):
     # Profile fields
     bio = models.TextField(_('biography'), blank=True)
     birth_date = models.DateField(_('birth date'), null=True, blank=True)
-    profile_image = models.ImageField(upload_to='profile_images/', null=True, blank=True)
+    profile_image = CloudinaryField('profile_images', null=True, blank=True, 
+                                   transformation={'quality': 'auto', 'fetch_format': 'auto'})
     
     # Preferences
     email_notifications = models.BooleanField(_('email notifications'), default=True)
@@ -83,6 +86,18 @@ class CustomUser(AbstractUser):
         if not self.premium_expiry:
             return False
         return timezone.now() <= self.premium_expiry
+    
+    @property
+    def profile_image_url(self):
+        """Get optimized profile image URL with Cloudinary transformations"""
+        if self.profile_image:
+            return CloudinaryImage(str(self.profile_image)).build_url(
+                transformation=[
+                    {'width': 200, 'height': 200, 'crop': 'fill', 'gravity': 'face', 'quality': 'auto'},
+                    {'fetch_format': 'auto'}
+                ]
+            )
+        return None
     
     def save(self, *args, **kwargs):
         self.last_updated = timezone.now()

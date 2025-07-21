@@ -22,7 +22,7 @@
                     <div class="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden transform transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl border border-pink-100">
                         <div class="relative">
                             {% if category.image %}
-                            <img src="{{ category.image.url }}" alt="{{ category.name }}" class="w-full h-48 object-cover">
+                            <img src="{{ category.image_url|default:category.image.url }}" alt="{{ category.name }}" class="w-full h-48 object-cover">
                             {% else %}
                             <div class="w-full h-48 bg-pink-100 flex items-center justify-center">
                                 <span class="text-pink-400">No Image</span>
