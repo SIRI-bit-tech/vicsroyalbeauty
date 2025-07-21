@@ -3,14 +3,32 @@ Allow: /
 Allow: /static/
 Allow: /media/
 Allow: /products/
+Allow: /categories/
 Allow: /about/
 Allow: /contact/
 Allow: /store-locations/
 Allow: /promotions/
+Allow: /health/
+Allow: /status/
 
+# Disallow admin and private areas
 Disallow: /admin/
 Disallow: /accounts/
 Disallow: /cart/
 Disallow: /checkout/
+Disallow: /orders/
+Disallow: /wishlist/
+Disallow: /api/
+Disallow: /logs/
+Disallow: /media/admin/
+Disallow: /static/admin/
 
-Sitemap: {{ request.scheme }}://{{ request.get_host }}/sitemap.xml 
+# Crawl delay for respectful crawling
+Crawl-delay: 1
+
+# Sitemap
+Sitemap: {{ request.scheme }}://{{ request.get_host }}/sitemap.xml
+
+# Additional sitemaps for different content types
+Sitemap: {{ request.scheme }}://{{ request.get_host }}/sitemap-products.xml
+Sitemap: {{ request.scheme }}://{{ request.get_host }}/sitemap-categories.xml 

@@ -66,6 +66,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'core.middleware.RateLimitMiddleware',  # Add rate limiting
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -85,6 +86,36 @@ if not DEBUG:
         *MIDDLEWARE,
         'django.middleware.cache.FetchFromCacheMiddleware',
 ]
+
+# Celery Configuration
+CELERY_BROKER_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+CELERY_ENABLE_UTC = True
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1
+CELERY_WORKER_MAX_TASKS_PER_CHILD = 1000
+CELERY_TASK_ROUTES = {
+    'core.tasks.*': {'queue': 'default'},
+    'orders.tasks.*': {'queue': 'orders'},
+    'products.tasks.*': {'queue': 'products'},
+}
+CELERY_BEAT_SCHEDULE = {
+    'cleanup-expired-sessions': {
+        'task': 'core.tasks.cleanup_expired_sessions',
+        'schedule': 3600.0,  # Every hour
+    },
+    'send-newsletter-digest': {
+        'task': 'core.tasks.send_newsletter_digest',
+        'schedule': 86400.0,  # Daily
+    },
+    'update-product-cache': {
+        'task': 'products.tasks.update_product_cache',
+        'schedule': 1800.0,  # Every 30 minutes
+    },
+}
 
 ROOT_URLCONF = 'vics_royal.urls'
 
@@ -179,8 +210,30 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
-MEDIA_URL = '/media/'
+# CloudFlare CDN Configuration
+if not DEBUG:
+    # Production: Use CloudFlare CDN
+    CLOUDFLARE_DOMAIN = os.getenv('CLOUDFLARE_DOMAIN', 'cdn.yourdomain.com')
+    STATIC_URL = f'https://{CLOUDFLARE_DOMAIN}/static/'
+    MEDIA_URL = f'https://{CLOUDFLARE_DOMAIN}/media/'
+else:
+    # Development: Use local files
+    STATIC_URL = '/static/'
+    MEDIA_URL = '/media/'
+
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Static files compression and caching
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# CloudFlare specific settings
+CLOUDFLARE_CONFIG = {
+    'DOMAIN': os.getenv('CLOUDFLARE_DOMAIN'),
+    'ZONE_ID': os.getenv('CLOUDFLARE_ZONE_ID'),
+    'API_TOKEN': os.getenv('CLOUDFLARE_API_TOKEN'),
+    'CACHE_TTL': 86400,  # 24 hours
+    'BROWSER_CACHE_TTL': 31536000,  # 1 year
+}
 
 # Initialize Glitchtip (Sentry)
 sentry_sdk.init(
@@ -202,9 +255,6 @@ CLOUDINARY_STORAGE = {
 # Use Cloudinary for media files
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
-# Static files compression and caching
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
 # Redis Configuration for Caching
 CACHES = {
     'default': {
@@ -212,7 +262,6 @@ CACHES = {
         'LOCATION': os.getenv('REDIS_URL', 'redis://localhost:6379/1'),
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            'PARSER_CLASS': 'redis.connection.HiredisParser',
             'CONNECTION_POOL_CLASS': 'redis.BlockingConnectionPool',
             'CONNECTION_POOL_CLASS_KWARGS': {
                 'max_connections': 50,
@@ -365,6 +414,21 @@ SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 
+# Content Security Policy
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.tailwindcss.com")
+CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com", "https://cdnjs.cloudflare.com")
+CSP_IMG_SRC = ("'self'", "data:", "https:", "https://res.cloudinary.com")
+CSP_FONT_SRC = ("'self'", "https://fonts.gstatic.com")
+CSP_CONNECT_SRC = ("'self'", "https://api.cloudinary.com")
+CSP_FRAME_SRC = ("'none'",)
+CSP_OBJECT_SRC = ("'none'",)
+
+# Additional Security Settings
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'
+SECURE_CROSS_ORIGIN_EMBEDDER_POLICY = 'require-corp'
+
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
@@ -372,6 +436,7 @@ if not DEBUG:
     SECURE_HSTS_SECONDS = 31536000  # 1 year
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 else:
     # In development, don't force HTTPS
     SECURE_SSL_REDIRECT = False

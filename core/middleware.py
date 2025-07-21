@@ -8,6 +8,65 @@ from django.core.cache import cache
 from django.utils.deprecation import MiddlewareMixin
 from bs4 import BeautifulSoup
 import htmlmin
+import time
+from django.http import HttpResponse, JsonResponse
+
+class RateLimitMiddleware(MiddlewareMixin):
+    def process_request(self, request):
+        # Get client IP
+        client_ip = self.get_client_ip(request)
+        
+        # Define rate limits
+        rate_limits = {
+            'default': {'requests': 100, 'window': 3600},  # 100 requests per hour
+            'api': {'requests': 1000, 'window': 3600},     # 1000 API requests per hour
+            'login': {'requests': 5, 'window': 300},       # 5 login attempts per 5 minutes
+            'contact': {'requests': 10, 'window': 3600},   # 10 contact form submissions per hour
+        }
+        
+        # Determine rate limit type based on path
+        path = request.path
+        if path.startswith('/api/'):
+            limit_type = 'api'
+        elif path.startswith('/accounts/login'):
+            limit_type = 'login'
+        elif path.startswith('/contact'):
+            limit_type = 'contact'
+        else:
+            limit_type = 'default'
+        
+        limit = rate_limits[limit_type]
+        
+        # Create cache key
+        cache_key = f"rate_limit:{limit_type}:{client_ip}"
+        
+        # Check current requests
+        current_requests = cache.get(cache_key, 0)
+        
+        if current_requests >= limit['requests']:
+            if request.path.startswith('/api/'):
+                return JsonResponse({
+                    'error': 'Rate limit exceeded. Please try again later.',
+                    'retry_after': limit['window']
+                }, status=429)
+            else:
+                return HttpResponse(
+                    f"Rate limit exceeded. Please try again in {limit['window']} seconds.",
+                    status=429
+                )
+        
+        # Increment request count
+        cache.set(cache_key, current_requests + 1, limit['window'])
+        
+        return None
+    
+    def get_client_ip(self, request):
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
 
 class PageSpeedMiddleware(MiddlewareMixin):
     def process_response(self, request, response):

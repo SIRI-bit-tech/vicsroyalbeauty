@@ -27,102 +27,49 @@ def get_unique_values(queryset, field):
     return sorted(list(values))
 
 def product_list(request, category_slug=None):
-    category = None
-    categories = Category.objects.all()
-    products = Product.objects.filter(is_active=True)
+    categories = Category.objects.select_related().filter(is_active=True)
     
     if category_slug:
-        category = get_object_or_404(Category, slug=category_slug)
-        products = products.filter(category=category)
-    
-    # Get unique sizes and colors from actual products
-    available_sizes = get_unique_values(products, 'available_sizes')
-    available_colors = get_unique_values(products, 'colors')
-    
-    # Filter by search query
-    search_query = request.GET.get('search', '')
-    if search_query:
-        products = products.filter(
-            Q(name__icontains=search_query) |
-            Q(description__icontains=search_query)
-        )
-    
-    # Filter by price range
-    min_price = request.GET.get('min_price')
-    max_price = request.GET.get('max_price')
-    if min_price and min_price.isdigit():
-        products = products.filter(price__gte=float(min_price))
-    if max_price and max_price.isdigit():
-        products = products.filter(price__lte=float(max_price))
-    
-    # Filter by size
-    sizes = request.GET.getlist('size')
-    if sizes:
-        size_query = Q()
-        for size in sizes:
-            size_query |= Q(available_sizes__icontains=size)
-        products = products.filter(size_query)
-    
-    # Filter by color
-    colors = request.GET.getlist('color')
-    if colors:
-        color_query = Q()
-        for color in colors:
-            color_query |= Q(colors__icontains=color)
-        products = products.filter(color_query)
-    
-    # Filter by new arrivals
-    if request.GET.get('new_arrivals'):
-        products = products.filter(is_new_arrival=True)
-    
-    # Sorting
-    sort = request.GET.get('sort', '-created_at')
-    if sort == 'name_asc':
-        products = products.order_by('name')
-    elif sort == 'name_desc':
-        products = products.order_by('-name')
-    elif sort == 'price_asc':
-        products = products.order_by('price')
-    elif sort == 'price_desc':
-        products = products.order_by('-price')
-    elif sort == 'newest':
-        products = products.order_by('-created_at')
-    elif sort == 'oldest':
-        products = products.order_by('created_at')
+        category = get_object_or_404(Category, slug=category_slug, is_active=True)
+        products = Product.objects.select_related('category').prefetch_related('images').filter(category=category, is_active=True)
     else:
-        products = products.order_by('-created_at')  # Default sorting
+        category = None
+        products = Product.objects.select_related('category').prefetch_related('images').filter(is_active=True)
     
     # Pagination
-    paginator = Paginator(products, 12)
-    page = request.GET.get('page')
-    try:
-        products = paginator.page(page)
-    except PageNotAnInteger:
-        products = paginator.page(1)
-    except EmptyPage:
-        products = paginator.page(paginator.num_pages)
+    paginator = Paginator(products, 12)  # 12 products per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     
     context = {
-        'category': category,
+        'products': page_obj,
         'categories': categories,
-        'products': products,
-        'available_sizes': available_sizes,
-        'available_colors': available_colors,
-        'selected_sizes': sizes,
-        'selected_colors': colors,
-        'current_sort': sort,
-        'min_price': min_price,
-        'max_price': max_price,
+        'current_category': category,
     }
     return render(request, 'products/product_list.html', context)
 
 def product_detail(request, slug):
-    product = get_object_or_404(Product, slug=slug)
-    related_products = Product.objects.filter(category=product.category).exclude(id=product.id)[:4]
+    product = get_object_or_404(
+        Product.objects.select_related('category').prefetch_related('images', 'reviews__user'),
+        slug=slug, 
+        is_active=True
+    )
+    
+    # Get related products
+    related_products = Product.objects.select_related('category').prefetch_related('images').filter(
+        category=product.category,
+        is_active=True
+    ).exclude(id=product.id)[:4]
+    
+    # Get user's review if they're logged in
+    user_review = None
+    if request.user.is_authenticated:
+        user_review = product.reviews.filter(user=request.user).first()
     
     context = {
         'product': product,
         'related_products': related_products,
+        'user_review': user_review,
     }
     return render(request, 'products/product_detail.html', context)
 
@@ -200,133 +147,91 @@ def add_review(request, slug):
 def product_search(request):
     query = request.GET.get('q', '')
     if query:
-        products = Product.objects.filter(
-            Q(name__icontains=query) |
+        products = Product.objects.select_related('category').prefetch_related('images').filter(
+            Q(name__icontains=query) | 
             Q(description__icontains=query) |
-            Q(category__name__icontains=query) |
-            Q(brand__icontains=query) |
-            Q(colors__icontains=query) |
-            Q(available_sizes__icontains=query)
-        ).distinct()
+            Q(category__name__icontains=query),
+            is_active=True
+        )
     else:
-        products = Product.objects.filter(is_active=True)
+        products = Product.objects.none()
     
     # Pagination
     paginator = Paginator(products, 12)
-    page = request.GET.get('page')
-    try:
-        products = paginator.page(page)
-    except PageNotAnInteger:
-        products = paginator.page(1)
-    except EmptyPage:
-        products = paginator.page(paginator.num_pages)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     
     context = {
+        'products': page_obj,
         'query': query,
-        'products': products,
-        'categories': Category.objects.all(),
-        'sizes': dict(Product.SIZES),
-        'colors': dict(Product.COLORS),
     }
-    
-    if request.headers.get('HX-Request'):
-        return render(request, 'products/partials/product_list.html', context)
-    return render(request, 'products/product_list.html', context)
+    return render(request, 'products/search_results.html', context)
 
 def product_filter(request):
-    products = Product.objects.filter(is_active=True)
-    
-    # Get all filter parameters
-    filters = {}
-    
-    # Category filter - handle single category selection
-    category = request.GET.get('category')
-    if category:
-        products = products.filter(category__slug=category)
-        filters['current_category'] = category
-    
-    # Price range filter
+    category_id = request.GET.get('category')
     min_price = request.GET.get('min_price')
     max_price = request.GET.get('max_price')
-    if min_price and min_price.isdigit():
-        products = products.filter(price__gte=float(min_price))
-        filters['min_price'] = min_price
-    if max_price and max_price.isdigit():
-        products = products.filter(price__lte=float(max_price))
-        filters['max_price'] = max_price
+    sort_by = request.GET.get('sort', 'name')
     
-    # Size filter
-    sizes = request.GET.getlist('size')
-    if sizes:
-        size_query = Q()
-        for size in sizes:
-            size_query |= Q(available_sizes__icontains=size)
-        products = products.filter(size_query)
-        filters['selected_sizes'] = sizes
+    products = Product.objects.select_related('category').prefetch_related('images').filter(is_active=True)
     
-    # Color filter
-    colors = request.GET.getlist('color')
-    if colors:
-        color_query = Q()
-        for color in colors:
-            color_query |= Q(colors__icontains=color)
-        products = products.filter(color_query)
-        filters['selected_colors'] = colors
+    if category_id:
+        products = products.filter(category_id=category_id)
     
-    # Sort products
-    sort_by = request.GET.get('sort', 'newest')
+    if min_price:
+        products = products.filter(price__gte=min_price)
+    
+    if max_price:
+        products = products.filter(price__lte=max_price)
+    
+    # Sorting
     if sort_by == 'price_low':
         products = products.order_by('price')
     elif sort_by == 'price_high':
         products = products.order_by('-price')
-    elif sort_by == 'name_asc':
-        products = products.order_by('name')
-    elif sort_by == 'name_desc':
-        products = products.order_by('-name')
-    else:  # newest
+    elif sort_by == 'newest':
         products = products.order_by('-created_at')
-    
-    filters['current_sort'] = sort_by
+    else:
+        products = products.order_by('name')
     
     # Pagination
-    page = request.GET.get('page', 1)
-    paginator = Paginator(products, 12)  # 12 products per page
-    try:
-        products_page = paginator.page(page)
-    except PageNotAnInteger:
-        products_page = paginator.page(1)
-    except EmptyPage:
-        products_page = paginator.page(paginator.num_pages)
+    paginator = Paginator(products, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    categories = Category.objects.select_related().filter(is_active=True)
     
     context = {
-        'products': products_page,
-        'categories': Category.objects.all(),
-        'sizes': dict(Product.SIZES),
-        'colors': dict(Product.COLORS),
-        **filters  # Include all filter parameters in context
+        'products': page_obj,
+        'categories': categories,
+        'filters': {
+            'category_id': category_id,
+            'min_price': min_price,
+            'max_price': max_price,
+            'sort_by': sort_by,
+        }
     }
-    
-    if request.headers.get('HX-Request'):
-        return render(request, 'products/partials/product_list.html', context)
     return render(request, 'products/product_list.html', context)
 
 def product_reviews(request, slug):
-    product = get_object_or_404(Product, slug=slug)
-    reviews = Review.objects.filter(product=product).order_by('-created_at')
+    product = get_object_or_404(
+        Product.objects.select_related('category').prefetch_related('reviews__user'),
+        slug=slug, 
+        is_active=True
+    )
+    
+    reviews = product.reviews.select_related('user').order_by('-created_at')
     
     # Pagination for reviews
-    paginator = Paginator(reviews, 5)  # 5 reviews per page
-    page = request.GET.get('page', 1)
-    reviews_page = paginator.get_page(page)
+    paginator = Paginator(reviews, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     
     context = {
         'product': product,
-        'reviews': reviews_page,
+        'reviews': page_obj,
     }
-    
-    if request.headers.get('HX-Request'):
-        return render(request, 'products/partials/reviews_list.html', context)
-    return render(request, 'products/reviews.html', context)
+    return render(request, 'products/product_reviews.html', context)
 
 # API Views
 class ProductListAPI(generics.ListAPIView):
@@ -352,15 +257,16 @@ class CategoryListAPI(generics.ListAPIView):
     permission_classes = [permissions.AllowAny]
 
 def quick_view(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
-    html = render_to_string('products/partials/quick_view.html', {
+    product = get_object_or_404(
+        Product.objects.select_related('category').prefetch_related('images'),
+        id=product_id, 
+        is_active=True
+    )
+    
+    context = {
         'product': product,
-        'request': request
-    })
-    return JsonResponse({
-        'html': html,
-        'success': True
-    })
+    }
+    return render(request, 'products/quick_view.html', context)
 
 def add_to_cart(request, product_id):
     if not request.user.is_authenticated:
@@ -428,49 +334,19 @@ def categories_view(request):
     })
 
 def product_list_by_category(request, category_slug):
-    category = get_object_or_404(Category, slug=category_slug)
-    products = Product.objects.filter(category=category, is_active=True)
-    
-    # Get unique sizes and colors from actual products in this category
-    available_sizes = get_unique_values(products, 'available_sizes')
-    available_colors = get_unique_values(products, 'colors')
-    
-    # Apply sorting if specified
-    sort = request.GET.get('sort', '-created_at')
-    if sort == 'name_asc':
-        products = products.order_by('name')
-    elif sort == 'name_desc':
-        products = products.order_by('-name')
-    elif sort == 'price_asc':
-        products = products.order_by('price')
-    elif sort == 'price_desc':
-        products = products.order_by('-price')
-    else:
-        products = products.order_by('-created_at')
+    category = get_object_or_404(Category, slug=category_slug, is_active=True)
+    products = Product.objects.select_related('category').prefetch_related('images').filter(
+        category=category, 
+        is_active=True
+    )
     
     # Pagination
     paginator = Paginator(products, 12)
-    page = request.GET.get('page')
-    try:
-        products = paginator.page(page)
-    except PageNotAnInteger:
-        products = paginator.page(1)
-    except EmptyPage:
-        products = paginator.page(paginator.num_pages)
-    
-    # Get wishlist count if user is authenticated
-    wishlist_count = None
-    if request.user.is_authenticated:
-        wishlist_count = request.user.wishlist.products.count()
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     
     context = {
+        'products': page_obj,
         'category': category,
-        'categories': Category.objects.all(),
-        'products': products,
-        'available_sizes': available_sizes,
-        'available_colors': available_colors,
-        'current_sort': sort,
-        'wishlist_count': wishlist_count
     }
-    
-    return render(request, 'products/product_list.html', context)
+    return render(request, 'products/category_products.html', context)

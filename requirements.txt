@@ -54,7 +54,7 @@ railway==0.0.4
 RapidFuzz==3.11.0
 requests==2.32.3
 requests-oauthlib==2.0.0
-requests-toolbelt==1.0.0
+requests-toolbelt
 shellingham==1.5.4
 sqlparse==0.5.3
 tomli==2.2.1
@@ -74,3 +74,15 @@ sentry-sdk[django]
 Pillow
 beautifulsoup4
 htmlmin
+django-ratelimit
+celery
+django-cacheops
+django-debug-toolbar
+django-extensions
+django-health-check
+django-cors-headers
+django-storages
+boto3
+psycopg2-binary
+gunicorn
+whitenoise

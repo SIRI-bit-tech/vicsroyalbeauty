@@ -2,55 +2,59 @@
 {% load static %}
 
 {% block title %}{{ product.name }} - Vics Royal Beauty{% endblock %}
-{% block meta_description %}{{ product.description|truncatewords:50 }}{% endblock %}
-{% block meta_keywords %}{{ product.name }}, {{ product.category.name }}, fashion, premium clothing{% endblock %}
+{% block meta_description %}{{ product.description|truncatewords:25 }}{% endblock %}
+{% block meta_keywords %}{{ product.name }}, {{ product.category.name }}, hair products, Vics Royal Beauty{% endblock %}
 
 {% block schema_markup %}
 <script type="application/ld+json">
 {
-    "@context": "https://schema.org/",
+    "@context": "https://schema.org",
     "@type": "Product",
     "name": "{{ product.name }}",
-    "image": "{{ request.scheme }}://{{ request.get_host }}{{ product.images.first.image.url }}",
-    "description": "{{ product.description }}",
+    "description": "{{ product.description|escapejs }}",
+    "image": [
+        {% for image in product.images.all %}
+        "{{ image.large_url|default:image.image.url }}"{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ],
     "brand": {
         "@type": "Brand",
         "name": "Vics Royal Beauty"
     },
+    "category": "{{ product.category.name }}",
     "offers": {
         "@type": "Offer",
-        "url": "{{ request.build_absolute_uri }}",
+        "price": "{{ product.price }}",
         "priceCurrency": "NGN",
-        "price": "{{ product.get_price }}",
-        "availability": "{% if product.is_available %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
+        "availability": "{% if product.is_active %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
         "seller": {
             "@type": "Organization",
             "name": "Vics Royal Beauty"
-        }
-    }
-    {% if product.reviews.exists %},
+        },
+        "url": "{{ request.build_absolute_uri }}"
+    },
     "aggregateRating": {
         "@type": "AggregateRating",
-        "ratingValue": "{{ product.average_rating }}",
+        "ratingValue": "{{ product.average_rating|default:0 }}",
         "reviewCount": "{{ product.reviews.count }}"
     },
     "review": [
-        {% for review in product.reviews.all %}
+        {% for review in product.reviews.all|slice:":5" %}
         {
             "@type": "Review",
+            "author": {
+                "@type": "Person",
+                "name": "{{ review.user.get_full_name|default:review.user.username }}"
+            },
             "reviewRating": {
                 "@type": "Rating",
                 "ratingValue": "{{ review.rating }}"
             },
-            "author": {
-                "@type": "Person",
-                "name": "{{ review.user.get_full_name }}"
-            },
-            "reviewBody": "{{ review.comment }}"
+            "reviewBody": "{{ review.comment|escapejs }}",
+            "datePublished": "{{ review.created_at|date:'c' }}"
         }{% if not forloop.last %},{% endif %}
         {% endfor %}
     ]
-    {% endif %}
 }
 </script>
 {% endblock %}

@@ -26,13 +26,66 @@ import logging
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_POST
 import json
+from django.db import connection
+from django.core.cache import cache
+import redis
+import psutil
+import platform
+from django.utils import timezone
 
 logger = logging.getLogger('django')
 
+def health_check(request):
+    """Basic health check endpoint"""
+    return JsonResponse({
+        'status': 'healthy',
+        'timestamp': timezone.now().isoformat(),
+        'service': 'vics_royal_beauty'
+    })
+
+def status_check(request):
+    """Detailed status check with system metrics"""
+    try:
+        # Database check
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+            db_status = 'healthy'
+    except Exception as e:
+        db_status = f'unhealthy: {str(e)}'
+    
+    # Redis check
+    try:
+        redis_client = redis.from_url(settings.CACHES['default']['LOCATION'])
+        redis_client.ping()
+        redis_status = 'healthy'
+    except Exception as e:
+        redis_status = f'unhealthy: {str(e)}'
+    
+    # System metrics
+    cpu_percent = psutil.cpu_percent(interval=1)
+    memory = psutil.virtual_memory()
+    disk = psutil.disk_usage('/')
+    
+    return JsonResponse({
+        'status': 'healthy' if db_status == 'healthy' and redis_status == 'healthy' else 'degraded',
+        'timestamp': timezone.now().isoformat(),
+        'services': {
+            'database': db_status,
+            'redis': redis_status,
+        },
+        'system': {
+            'cpu_percent': cpu_percent,
+            'memory_percent': memory.percent,
+            'disk_percent': disk.percent,
+            'platform': platform.platform(),
+        },
+        'version': '1.0.0'
+    })
+
 def home(request):
-    categories = Category.objects.all()
-    featured_products = Product.objects.filter(is_featured=True)[:8]
-    new_arrivals = Product.objects.filter(is_new_arrival=True)[:8]
+    categories = Category.objects.select_related().all()
+    featured_products = Product.objects.select_related('category').prefetch_related('images').filter(is_featured=True)[:8]
+    new_arrivals = Product.objects.select_related('category').prefetch_related('images').filter(is_new_arrival=True)[:8]
     promotions = Promotion.objects.filter(is_active=True)[:3]
     
     context = {
@@ -61,28 +114,9 @@ def contact(request):
             message=message
         )
         
-        # Send email notification to admin
-        admin_email = os.getenv('ADMIN_EMAIL')
-        email_subject = f'New Contact Message: {subject}'
-        email_message = f"""
-        New contact form submission:
-        
-        From: {name} ({email})
-        Subject: {subject}
-        Message:
-        {message}
-        """
-        
-        try:
-            send_mail(
-                subject=email_subject,
-                message=email_message,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[admin_email],
-                fail_silently=False
-            )
-        except Exception as e:
-            print(f"Failed to send email: {str(e)}")
+        # Send email notification to admin using background task
+        from .tasks import send_contact_notification
+        send_contact_notification.delay(name, email, subject, message)
         
         return JsonResponse({
             'success': True,
@@ -406,20 +440,20 @@ class StoreLocationListAPI(generics.ListAPIView):
 @csrf_protect
 @require_POST
 def log_javascript_error(request):
-    try:
-        error_data = json.loads(request.body)
+    if request.method == 'POST':
+        data = json.loads(request.body.decode('utf-8'))
+        # Only log if there is a real message or stack
+        if not data.get('message') and not data.get('stack'):
+            return JsonResponse({'status': 'ignored'}, status=204)
         logger.error(
-            'JavaScript Error: %s\nFile: %s\nLine: %s\nColumn: %s\nStack: %s',
-            error_data.get('message'),
-            error_data.get('filename'),
-            error_data.get('lineno'),
-            error_data.get('colno'),
-            error_data.get('error')
+            f"JavaScript Error: {data.get('message')}\n"
+            f"File: {data.get('source')}\n"
+            f"Line: {data.get('lineno')}\n"
+            f"Column: {data.get('colno')}\n"
+            f"Stack: {data.get('stack')}"
         )
         return JsonResponse({'status': 'logged'})
-    except Exception as e:
-        logger.error('Error logging JavaScript error: %s', str(e))
-        return JsonResponse({'status': 'error'}, status=500)
+    return JsonResponse({'error': 'Invalid request'}, status=400)
 
 def custom_404(request, exception):
     return render(request, 'core/errors/404.html', status=404)

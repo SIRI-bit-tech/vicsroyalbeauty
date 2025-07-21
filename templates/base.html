@@ -11,14 +11,15 @@
     </title>
     <meta
       name="description"
-      content="{% block meta_description %}Vics Royal Beauty offers premium hair care products and accessories. Shop the latest trends in Nigerian hair care.{% endblock %}"
+      content="{% block meta_description %}Vics Royal Beauty offers premium hair care products and accessories. Shop the latest trends in Nigerian hair care with fast delivery and excellent customer service.{% endblock %}"
     />
     <meta
       name="keywords"
-      content="{% block meta_keywords %}hair care, premium hair products, Nigerian hair care, hair accessories, Vics Royal Beauty{% endblock %}"
+      content="{% block meta_keywords %}hair care, premium hair products, Nigerian hair care, hair accessories, Vics Royal Beauty, human hair, wigs, hair extensions, hair bundles{% endblock %}"
     />
     <meta name="author" content="Vics Royal Beauty" />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow" />
     
     <!-- Open Graph / Facebook -->
     <meta
@@ -38,6 +39,10 @@
       property="og:image"
       content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/logo.jpg' %}{% endblock %}"
     />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content="Vics Royal Beauty" />
+    <meta property="og:locale" content="en_US" />
     
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -54,6 +59,8 @@
       name="twitter:image"
       content="{% block twitter_image %}{{ block.super }}{% endblock %}"
     />
+    <meta name="twitter:site" content="@vicsroyalbeauty" />
+    <meta name="twitter:creator" content="@vicsroyalbeauty" />
     
     <!-- Canonical URL -->
     <link rel="canonical" href="{{ request.build_absolute_uri }}" />
@@ -64,6 +71,16 @@
       type="image/png"
       href="{% static 'images/favicon.png' %}"
     />
+    <link rel="apple-touch-icon" href="{% static 'images/apple-touch-icon.png' %}" />
+    
+    <!-- DNS Prefetch and Preconnect -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+    <link rel="dns-prefetch" href="//cdn.tailwindcss.com" />
+    <link rel="dns-prefetch" href="//res.cloudinary.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://res.cloudinary.com" />
     
     <!-- CSS -->
     <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
@@ -82,18 +99,63 @@
         "name": "Vics Royal Beauty",
         "url": "{{ request.scheme }}://{{ request.get_host }}",
         "logo": "{{ request.scheme }}://{{ request.get_host }}{% static 'images/logo.jpg' %}",
+        "description": "Premium hair care products and accessories in Nigeria",
+        "foundingDate": "2024",
         "contactPoint": {
             "@type": "ContactPoint",
             "telephone": "+234-XXX-XXX-XXXX",
-            "contactType": "customer service"
+            "contactType": "customer service",
+            "availableLanguage": "English"
+        },
+        "address": {
+            "@type": "PostalAddress",
+            "addressCountry": "NG",
+            "addressLocality": "Lagos",
+            "addressRegion": "Lagos"
         },
         "sameAs": [
-          "https://facebook.com/vicsroyalbeauty",
-"https://instagram.com/vicsroyalbeauty"
-        ]
+            "https://facebook.com/vicsroyalbeauty",
+            "https://instagram.com/vicsroyalbeauty",
+            "https://twitter.com/vicsroyalbeauty"
+        ],
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "{{ request.scheme }}://{{ request.get_host }}/products/?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        }
     }
     </script>
     {% endblock %}
+    
+    <!-- Performance Monitoring -->
+    {% if not debug %}
+    <script>
+        // Performance monitoring
+        window.addEventListener('load', function() {
+            if ('performance' in window) {
+                const perfData = performance.getEntriesByType('navigation')[0];
+                if (perfData) {
+                    fetch('/log-error/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify({
+                            type: 'performance',
+                            data: {
+                                loadTime: perfData.loadEventEnd - perfData.loadEventStart,
+                                domContentLoaded: perfData.domContentLoadedEventEnd - perfData.domContentLoadedEventStart,
+                                firstPaint: performance.getEntriesByName('first-paint')[0]?.startTime,
+                                firstContentfulPaint: performance.getEntriesByName('first-contentful-paint')[0]?.startTime
+                            }
+                        })
+                    });
+                }
+            }
+        });
+    </script>
+    {% endif %}
     
     <link
       rel="icon"
@@ -707,42 +769,57 @@
         }
     </script>
 
-    <!-- JavaScript -->
-    <script src="{% static 'js/main.js' %}" defer></script>
-    {% block extra_js %}{% endblock %}
-    
+    <!-- Robust JavaScript Error Logging -->
+<script>
+function getCSRFToken() {
+    const name = 'csrftoken';
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.startsWith(name + '=')) {
+            return decodeURIComponent(cookie.substring(name.length + 1));
+        }
+    }
+    return '';
+}
+
+window.onerror = function(message, source, lineno, colno, error) {
+    // Only send if there is a real message or stack
+    if (!message && !(error && error.stack)) return;
+
+    fetch('/log-error/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({
+            type: 'js',
+            message: message || null,
+            source: source || null,
+            lineno: lineno || null,
+            colno: colno || null,
+            stack: error && error.stack ? error.stack : null
+        })
+    });
+};
+</script>
+
     <!-- Error Tracking -->
     {% if not debug %}
-    <script
-        src="https://browser.sentry-cdn.com/7.0.0/bundle.min.js"
-        integrity="sha384-...your-integrity-hash..."
-        crossorigin="anonymous"
-    ></script>
+    <script src="https://browser.sentry-cdn.com/7.92.0/bundle.tracing.min.js" crossorigin="anonymous"></script>
     <script>
-        Sentry.init({
-            dsn: '{{ GLITCHTIP_DSN }}',
-            environment: '{{ ENVIRONMENT }}',
-            release: '1.0.0',
-            integrations: [
-                new Sentry.BrowserTracing(),
-                new Sentry.Replay(),
-            ],
-            tracesSampleRate: 1.0,
-            replaysSessionSampleRate: 0.1,
-            replaysOnErrorSampleRate: 1.0,
-            beforeSend(event, hint) {
-                // Add user context if available
-                if ('{{ request.user.id }}') {
-                    event.user = {
-                        id: '{{ request.user.id }}',
-                        email: '{{ request.user.email }}',
-                        username: '{{ request.user.username }}',
-                    };
-                }
-                return event;
-            },
-        });
-    </script>
+Sentry.init({
+  dsn: '{{ GLITCHTIP_DSN }}',
+  integrations: [
+    new Sentry.BrowserTracing({
+      tracePropagationTargets: ["localhost", "yourdomain.com", /^https:\/\/api\.yourdomain\.com/],
+    }),
+  ],
+  tracesSampleRate: 1.0,
+  environment: '{{ ENVIRONMENT|default:"production" }}',
+});
+</script>
     {% endif %}
 </body>
 </html> 
