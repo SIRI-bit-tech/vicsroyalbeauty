@@ -1,9 +1,7 @@
 services:
   - type: web
     name: vics-royal-web
-    runtime: python
-    buildCommand: "./build.sh"
-    startCommand: "./start.sh"
+    runtime: docker
     plan: free
     envVars:
       - key: DJANGO_SUPERUSER_USERNAME
@@ -12,22 +10,20 @@ services:
         value: admin@example.com
       - key: DJANGO_SUPERUSER_PASSWORD
         value: yourpassword
-      # Add all other required environment variables here
+      # Add other environment variables here
 
   - type: worker
     name: vics-royal-celery-worker
-    runtime: python
-    buildCommand: "./build.sh"
-    startCommand: "celery -A vics_royal worker --loglevel=info --concurrency=2"
+    runtime: docker
     plan: free
     envVars:
       - fromGroup: vics-royal-web
+    startCommand: celery -A vics_royal worker --loglevel=info --concurrency=2
 
   - type: worker
     name: vics-royal-celery-beat
-    runtime: python
-    buildCommand: "./build.sh"
-    startCommand: "celery -A vics_royal beat --loglevel=info"
+    runtime: docker
     plan: free
     envVars:
-      - fromGroup: vics-royal-web 
+      - fromGroup: vics-royal-web
+    startCommand: celery -A vics_royal beat --loglevel=info
