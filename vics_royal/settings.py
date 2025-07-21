@@ -32,8 +32,11 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'your-secret-key-here')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
-# ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split(" ")
-ALLOWED_HOSTS = ['*']
+# ALLOWED_HOSTS: set as a space-separated list in your environment, e.g. 'vicsroyal.com www.vicsroyal.com'
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split()
+if ALLOWED_HOSTS == ['']:
+    ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = ['*']
 
 # Application definition
 
