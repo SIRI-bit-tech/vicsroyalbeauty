@@ -30,4 +30,7 @@ RUN chmod +x /entrypoint.sh
 EXPOSE 10000
 
 # Use entrypoint for all commands
-ENTRYPOINT ["/entrypoint.sh"] 
+ENTRYPOINT ["/entrypoint.sh"]
+
+# Default command: start Gunicorn for web service
+CMD ["gunicorn", "vics_royal.wsgi:application", "--bind", "0.0.0.0:10000"] 
