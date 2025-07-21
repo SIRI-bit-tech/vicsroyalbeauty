@@ -17,8 +17,8 @@ urlpatterns = [
     path('place-order/', views.place_order, name='place_order'),
     
     # Order URLs
-    path('orders/', views.order_list, name='order_list'),
-    path('orders/<int:order_id>/', views.order_detail, name='order_detail'),
+    path('', views.order_list, name='order_list'),
+    path('<int:order_id>/', views.order_detail, name='order_detail'),
     
     # API URLs
     path('api/cart/', views.CartAPI.as_view(), name='cart_api'),

@@ -35,14 +35,22 @@ def breadcrumbs(request):
     })
     
     # Add subsequent breadcrumbs
-    for part in path_parts:
+    for i, part in enumerate(path_parts):
         current_path += f'/{part}'
         name = part.replace('-', ' ').title()
+        
         # Customize names for specific sections
         if part == 'products':
             name = 'Shop'
         elif part == 'checkout':
             name = 'Checkout'
+        elif part == 'orders':
+            name = 'Orders'
+        elif part == 'cart':
+            name = 'Cart'
+        elif part.isdigit() and i > 0 and path_parts[i-1] == 'orders':
+            # This is an order ID, show it as "Order #X"
+            name = f'Order #{part}'
         
         breadcrumbs.append({
             'name': name,

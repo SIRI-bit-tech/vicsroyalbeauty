@@ -21,50 +21,80 @@
         <div class="container mx-auto px-4 max-w-4xl">
             <!-- Order Status Timeline -->
             <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <div class="flex justify-between">
-                    <div class="relative flex-1">
-                        <div class="w-10 h-10 mx-auto bg-accent rounded-full text-lg text-white flex items-center justify-center">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                {% if order.status == 'cancelled' %}
+                    <!-- Cancelled Order Message -->
+                    <div class="text-center py-8">
+                        <div class="w-16 h-16 mx-auto bg-red-500 rounded-full text-white flex items-center justify-center mb-4">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
                         </div>
-                        <div class="text-center text-sm mt-2">Order Placed</div>
-                        <div class="text-xs text-gray-500">{{ order.created_at|date:"F j, Y" }}</div>
-                    </div>
-                    <div class="relative flex-1">
-                        <div class="absolute left-0 top-5 -ml-px w-full h-0.5 bg-gray-300"></div>
-                        <div class="w-10 h-10 mx-auto {% if order.status == 'processing' or order.status == 'shipped' or order.status == 'delivered' %}bg-accent{% else %}bg-gray-300{% endif %} rounded-full text-lg text-white flex items-center justify-center relative z-10">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
+                        <h3 class="text-xl font-semibold text-red-600 mb-2">Order Cancelled</h3>
+                        <p class="text-gray-600 mb-4">This order has been cancelled by our team.</p>
+                        <p class="text-sm text-gray-500">If you have any questions, please contact our customer support.</p>
+                        <div class="mt-6">
+                            <a href="{% url 'products:product_list' %}" 
+                               class="bg-gradient-to-r from-pink-600 to-teal-500 hover:from-pink-700 hover:to-teal-600 text-white px-6 py-3 rounded-lg font-semibold transition duration-300">
+                                Browse Products
+                            </a>
                         </div>
-                        <div class="text-center text-sm mt-2">Processing</div>
                     </div>
-                    <div class="relative flex-1">
-                        <div class="absolute left-0 top-5 -ml-px w-full h-0.5 bg-gray-300"></div>
-                        <div class="w-10 h-10 mx-auto {% if order.status == 'shipped' or order.status == 'delivered' %}bg-accent{% else %}bg-gray-300{% endif %} rounded-full text-lg text-white flex items-center justify-center relative z-10">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                            </svg>
+                {% else %}
+                    <div class="flex justify-between">
+                        <!-- Order Placed -->
+                        <div class="relative flex-1">
+                            <div class="w-10 h-10 mx-auto {% if order.status == 'pending' %}bg-yellow-500{% elif order.status == 'processing' or order.status == 'shipped' or order.status == 'delivered' %}bg-green-500{% else %}bg-gray-300{% endif %} rounded-full text-lg text-white flex items-center justify-center">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                </svg>
+                            </div>
+                            <div class="text-center text-sm mt-2 {% if order.status == 'pending' %}text-yellow-600 font-semibold{% elif order.status == 'processing' or order.status == 'shipped' or order.status == 'delivered' %}text-green-600 font-semibold{% else %}text-gray-500{% endif %}">Order Placed</div>
+                            <div class="text-xs text-gray-500">{{ order.created_at|date:"F j, Y" }}</div>
                         </div>
-                        <div class="text-center text-sm mt-2">Shipped</div>
-                        {% if order.shipped_at %}
-                            <div class="text-xs text-gray-500">{{ order.shipped_at|date:"F j, Y" }}</div>
-                        {% endif %}
-                    </div>
-                    <div class="relative flex-1">
-                        <div class="absolute left-0 top-5 -ml-px w-full h-0.5 bg-gray-300"></div>
-                        <div class="w-10 h-10 mx-auto {% if order.status == 'delivered' %}bg-accent{% else %}bg-gray-300{% endif %} rounded-full text-lg text-white flex items-center justify-center relative z-10">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-                            </svg>
+                        
+                        <!-- Processing -->
+                        <div class="relative flex-1">
+                            <div class="absolute left-0 top-5 -ml-px w-full h-0.5 {% if order.status == 'processing' or order.status == 'shipped' or order.status == 'delivered' %}bg-green-500{% else %}bg-gray-300{% endif %}"></div>
+                            <div class="w-10 h-10 mx-auto {% if order.status == 'processing' %}bg-yellow-500{% elif order.status == 'shipped' or order.status == 'delivered' %}bg-green-500{% else %}bg-gray-300{% endif %} rounded-full text-lg text-white flex items-center justify-center relative z-10">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                            <div class="text-center text-sm mt-2 {% if order.status == 'processing' %}text-yellow-600 font-semibold{% elif order.status == 'shipped' or order.status == 'delivered' %}text-green-600 font-semibold{% else %}text-gray-500{% endif %}">Processing</div>
+                            {% if order.status == 'processing' %}
+                                <div class="text-xs text-yellow-600">{{ order.updated_at|date:"F j, Y" }}</div>
+                            {% endif %}
                         </div>
-                        <div class="text-center text-sm mt-2">Delivered</div>
-                        {% if order.delivered_at %}
-                            <div class="text-xs text-gray-500">{{ order.delivered_at|date:"F j, Y" }}</div>
-                        {% endif %}
+                        
+                        <!-- Shipped -->
+                        <div class="relative flex-1">
+                            <div class="absolute left-0 top-5 -ml-px w-full h-0.5 {% if order.status == 'shipped' or order.status == 'delivered' %}bg-green-500{% else %}bg-gray-300{% endif %}"></div>
+                            <div class="w-10 h-10 mx-auto {% if order.status == 'shipped' %}bg-yellow-500{% elif order.status == 'delivered' %}bg-green-500{% else %}bg-gray-300{% endif %} rounded-full text-lg text-white flex items-center justify-center relative z-10">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                            </div>
+                            <div class="text-center text-sm mt-2 {% if order.status == 'shipped' %}text-yellow-600 font-semibold{% elif order.status == 'delivered' %}text-green-600 font-semibold{% else %}text-gray-500{% endif %}">Shipped</div>
+                            {% if order.shipped_at %}
+                                <div class="text-xs text-gray-500">{{ order.shipped_at|date:"F j, Y" }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Delivered -->
+                        <div class="relative flex-1">
+                            <div class="absolute left-0 top-5 -ml-px w-full h-0.5 {% if order.status == 'delivered' %}bg-green-500{% else %}bg-gray-300{% endif %}"></div>
+                            <div class="w-10 h-10 mx-auto {% if order.status == 'delivered' %}bg-green-500{% else %}bg-gray-300{% endif %} rounded-full text-lg text-white flex items-center justify-center relative z-10">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                                </svg>
+                            </div>
+                            <div class="text-center text-sm mt-2 {% if order.status == 'delivered' %}text-green-600 font-semibold{% else %}text-gray-500{% endif %}">Delivered</div>
+                            {% if order.delivered_at %}
+                                <div class="text-xs text-gray-500">{{ order.delivered_at|date:"F j, Y" }}</div>
+                            {% endif %}
+                        </div>
                     </div>
-                </div>
+                {% endif %}
             </div>
 
             <!-- Order Details -->
