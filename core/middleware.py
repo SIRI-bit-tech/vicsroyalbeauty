@@ -16,25 +16,28 @@ class RateLimitMiddleware(MiddlewareMixin):
         # Get client IP
         client_ip = self.get_client_ip(request)
         
-        # Define rate limits
+        # Define rate limits only for sensitive endpoints
         rate_limits = {
-            'default': {'requests': 100, 'window': 3600},  # 100 requests per hour
             'api': {'requests': 1000, 'window': 3600},     # 1000 API requests per hour
             'login': {'requests': 5, 'window': 300},       # 5 login attempts per 5 minutes
             'contact': {'requests': 10, 'window': 3600},   # 10 contact form submissions per hour
         }
         
-        # Determine rate limit type based on path
+        # Only apply rate limiting to sensitive endpoints
         path = request.path
+        limit_type = None
+        
         if path.startswith('/api/'):
             limit_type = 'api'
         elif path.startswith('/accounts/login'):
             limit_type = 'login'
         elif path.startswith('/contact'):
             limit_type = 'contact'
-        else:
-            limit_type = 'default'
-        
+            
+        # If not a sensitive endpoint, allow the request
+        if not limit_type:
+            return None
+            
         limit = rate_limits[limit_type]
         
         # Create cache key
