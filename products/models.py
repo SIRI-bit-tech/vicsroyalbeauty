@@ -67,29 +67,8 @@ class Product(models.Model):
         ('48', '48 inches'),
         ('50', '50 inches'),
     ]
-    
-    SHOE_SIZES = [
-        ('34', '34'),
-        ('35', '35'),
-        ('36', '36'),
-        ('37', '37'),
-        ('38', '38'),
-        ('39', '39'),
-        ('40', '40'),
-        ('41', '41'),
-        ('42', '42'),
-        ('43', '43'),
-        ('44', '44'),
-        ('45', '45'),
-        ('46', '46'),
-        ('47', '47'),
-        ('48', '48'),
-        ('49', '49'),
-        ('50', '50'),
-        
-    ]
-    
-    PERFUME_SIZES = [
+
+    OTHER_PRODUCTS_SIZES = [
         ('30ml', '30ml'),
         ('50ml', '50ml'),
         ('65ml', '65ml'),
@@ -134,7 +113,7 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     sale_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     stock = models.PositiveIntegerField(default=0)
-    available_sizes = models.CharField(max_length=200, blank=True, null=True, help_text='Enter sizes separated by commas. For hair extensions: 8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50 inches. For perfumes: 30ml,50ml,75ml,100ml,200ml. For shoes: 34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50')
+    available_sizes = models.CharField(max_length=200, blank=True, null=True, help_text='Enter sizes separated by commas. For hair extensions: 8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50 inches. For Other Products: 30ml,50ml,75ml,100ml,200ml.')
     colors = models.CharField(max_length=200, help_text='Enter colors separated by commas (e.g., red,blue,black)', blank=True)
     is_featured = models.BooleanField(default=False)
     is_new_arrival = models.BooleanField(default=False)
@@ -185,13 +164,10 @@ class Product(models.Model):
             sizes = [s.strip() for s in self.available_sizes.split(',')]
             category_name = self.category.name.lower()
             
-            if 'perfume' in category_name:
-                valid_sizes = dict(self.PERFUME_SIZES)
+            if 'perfume' in category_name or any(word in category_name for word in ['care', 'styling', 'treatment']):
+                valid_sizes = dict(self.OTHER_PRODUCTS_SIZES)
                 self.available_sizes = ','.join(s for s in sizes if s in valid_sizes)
-            elif 'shoe' in category_name:
-                valid_sizes = dict(self.SHOE_SIZES)
-                self.available_sizes = ','.join(s for s in sizes if s in valid_sizes)
-            else:  # Default to hair care sizes
+            else:  # Default to hair extensions sizes
                 valid_sizes = dict(self.HAIR_CARE_SIZES)
                 self.available_sizes = ','.join(s.upper() for s in sizes if s.upper() in valid_sizes)
         

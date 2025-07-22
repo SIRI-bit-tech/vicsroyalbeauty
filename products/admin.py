@@ -49,17 +49,17 @@ class ProductAdmin(admin.ModelAdmin):
                 'fields': ('available_sizes',),
                 'description': 'Enter perfume sizes (e.g., 50ml,100ml)'
             }))
-        elif obj and 'shoe' in obj.category.name.lower():
-            # For shoes, show both sizes and colors
+        elif obj and any(word in obj.category.name.lower() for word in ['extensions', 'wigs']):
+            # For hair extensions and wigs, show both sizes and colors
             fieldsets.insert(2, ('Options', {
                 'fields': ('available_sizes', 'colors'),
-                'description': 'Enter shoe sizes (e.g., 38,39,40) and colors. Type "none" if no colors are available.'
+                'description': 'Enter hair lengths in inches (e.g., 12,14,16,18) and colors. Type "none" if no colors are available.'
             }))
         else:
-            # For hair care, show both sizes and colors
+            # For hair care products, show sizes in ml and colors
             fieldsets.insert(2, ('Options', {
                 'fields': ('available_sizes', 'colors'),
-                'description': 'Enter hair care sizes (e.g., S,M,L) and colors. Type "none if no colors are available.'
+                'description': 'Enter product sizes (e.g., 30ml,50ml,100ml) and colors. Type "none" if no colors are available.'
             }))
         
         return fieldsets
@@ -72,11 +72,11 @@ class ProductAdmin(admin.ModelAdmin):
                 form.base_fields['available_sizes'].help_text = 'Enter sizes separated by commas (e.g., 50ml,100ml)'
                 if 'colors' in form.base_fields:
                     form.base_fields['colors'].widget = forms.HiddenInput()
-            elif 'shoe' in obj.category.name.lower():
-                form.base_fields['available_sizes'].help_text = 'Enter sizes separated by commas (e.g., 38,39,40)'
-                form.base_fields['colors'].help_text = 'Enter colors separated by commas (e.g., red,blue,black) or type "none" if no colors are available'
+            elif any(word in obj.category.name.lower() for word in ['extensions', 'wigs']):
+                form.base_fields['available_sizes'].help_text = 'Enter hair lengths in inches separated by commas (e.g., 12,14,16,18,20)'
+                form.base_fields['colors'].help_text = 'Enter colors separated by commas (e.g., black,brown,blonde) or type "none" if no colors are available'
             else:
-                form.base_fields['available_sizes'].help_text = 'Enter sizes separated by commas (e.g., S,M,L)'
+                form.base_fields['available_sizes'].help_text = 'Enter sizes in ml separated by commas (e.g., 30ml,50ml,100ml)'
                 form.base_fields['colors'].help_text = 'Enter colors separated by commas (e.g., red,blue,black) or type "none" if no colors are available'
         return form
 
