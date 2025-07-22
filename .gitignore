@@ -23,7 +23,9 @@ venv/
 .env
 
 # Django migrations
-*/migrations/*
+!*/migrations/
+!*/migrations/*.py
+!*/migrations/*.pyc
 
 # IDE specific
 .vscode/
