@@ -90,13 +90,6 @@
     <link rel="preload" href="{% static 'images/logo.jpg' %}" as="image" />
     <link rel="preload" href="{% static 'css/styles.css' %}" as="style" />
     
-    <!-- JavaScript -->
-    <script>
-        // Global variable to check if user is authenticated
-        const isAuthenticated = {% if user.is_authenticated %}true{% else %}false{% endif %};
-    </script>
-    <script src="{% static 'js/products.js' %}"></script>
-    
     <!-- Schema.org Markup -->
     {% block schema_markup %}
     <script type="application/ld+json">
@@ -828,5 +821,8 @@ Sentry.init({
 });
 </script>
     {% endif %}
+    
+    {% include 'includes/scripts.html' %}
+    {% block extra_js %}{% endblock %}
 </body>
-</html> 
+</html>

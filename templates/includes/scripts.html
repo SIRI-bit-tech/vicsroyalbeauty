@@ -1,0 +1,157 @@
+<!-- Quick View Modal -->
+<div id="quickViewModal" 
+     class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden"
+     x-data="{ open: false }"
+     x-show="open"
+     x-cloak
+     @click.self="open = false">
+    <div class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4">
+        <!-- Modal content will be injected here -->
+    </div>
+</div>
+
+<!-- Global JavaScript -->
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function addToCart(productId) {
+    fetch(`/cart/add/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            quantity: 1
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update cart count and show success message
+            updateCartCount(data.cart_count);
+            showNotification('Product added to cart successfully!', 'success');
+        } else {
+            showNotification('Failed to add product to cart.', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred. Please try again.', 'error');
+    });
+}
+
+function addToWishlist(productId) {
+    fetch(`/wishlist/add/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Refresh the page to update the wishlist
+            location.reload();
+        } else {
+            showNotification('Failed to add product to wishlist.', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred. Please try again.', 'error');
+    });
+}
+
+function quickView(productId) {
+    fetch(`/products/quick-view/${productId}/`, {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.text();
+    })
+    .then(html => {
+        const modal = document.getElementById('quickViewModal');
+        modal.querySelector('div').innerHTML = html;
+        // Show modal using Alpine.js
+        modal.__x.$data.open = true;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Error loading product details', 'error');
+    });
+}
+
+function showNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    
+    // Add notification styles if not already in CSS
+    const style = document.createElement('style');
+    style.textContent = `
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 1000;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .notification.success {
+            background-color: #4F46E5;
+            color: white;
+        }
+        .notification.error {
+            background-color: #EF4444;
+            color: white;
+        }
+    `;
+    document.head.appendChild(style);
+    
+    document.body.appendChild(notification);
+    
+    // Remove notification after 3 seconds
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => {
+            notification.remove();
+        }, 300);
+    }, 3000);
+}
+
+function updateCartCount(count) {
+    const cartCountElement = document.getElementById('cart-count');
+    if (cartCountElement) {
+        cartCountElement.textContent = count;
+    }
+}
+</script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>
