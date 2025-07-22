@@ -13,6 +13,7 @@ class Category(models.Model):
     description = models.TextField(blank=True)
     image = CloudinaryField('categories', blank=True, null=True, 
                            transformation={'quality': 'auto', 'fetch_format': 'auto'})
+    is_active = models.BooleanField(default=True)  # Add this line
     
     class Meta:
         verbose_name_plural = 'Categories'
