@@ -6,6 +6,7 @@ app_name = 'products'
 urlpatterns = [
     path('', views.categories_view, name='categories'),
     path('products/', views.product_list, name='product_list'),
+    path('category/', views.categories_view, name='categories_redirect'),  # Add this line to handle base category URL
     path('category/<slug:category_slug>/', views.product_list_by_category, name='product_list_by_category'),
     path('filter/', views.product_filter, name='product_filter'),
     path('quick-view/<int:product_id>/', views.quick_view, name='quick_view'),
