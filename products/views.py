@@ -340,6 +340,8 @@ def product_list_by_category(request, category_slug):
         is_active=True
     )
     
+    categories = Category.objects.all()
+    
     # Pagination
     paginator = Paginator(products, 12)
     page_number = request.GET.get('page')
@@ -347,6 +349,7 @@ def product_list_by_category(request, category_slug):
     
     context = {
         'products': page_obj,
-        'category': category,
+        'categories': categories,
+        'current_category': category,
     }
-    return render(request, 'products/category_products.html', context)
+    return render(request, 'products/product_list.html', context)
