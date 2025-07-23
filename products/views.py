@@ -266,7 +266,7 @@ def quick_view(request, product_id):
     context = {
         'product': product,
     }
-    return render(request, 'products/quick_view.html', context)
+    return render(request, 'products/partials/quick_view.html', context)
 
 def add_to_cart(request, product_id):
     if not request.user.is_authenticated:

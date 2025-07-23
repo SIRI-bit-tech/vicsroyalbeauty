@@ -41,11 +41,11 @@ function addToCart(productId) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Update cart count and show success message
+            // Update cart count and show the message from server
             updateCartCount(data.cart_count);
-            showNotification('Product added to cart successfully!', 'success');
+            showNotification(data.message || 'Product added to cart successfully!', 'success');
         } else {
-            showNotification('Failed to add product to cart.', 'error');
+            showNotification(data.message || 'Failed to add product to cart.', 'error');
         }
     })
     .catch(error => {
