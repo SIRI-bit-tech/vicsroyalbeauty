@@ -148,19 +148,38 @@
         </div>
         {% else %}
         <!-- Empty Cart -->
-        <div class="bg-white/90 backdrop-blur-sm shadow rounded-lg border border-pink-100">
-            <div class="p-12 text-center">
-                <div class="mx-auto w-24 h-24 bg-pink-100 rounded-full flex items-center justify-center mb-6">
-                    <svg class="w-12 h-12 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"></path>
-                    </svg>
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <div class="p-16 text-center relative">
+                <!-- Modern gradient background -->
+                <div class="absolute inset-0 bg-gradient-to-br from-pink-50 via-white to-teal-50 opacity-50"></div>
+                
+                <!-- Modern cart icon with better styling -->
+                <div class="relative z-10">
+                    <div class="mx-auto w-32 h-32 bg-gradient-to-br from-pink-500 to-teal-500 rounded-full flex items-center justify-center mb-8 shadow-lg">
+                        <svg class="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                        </svg>
+                    </div>
+                    
+                    <!-- Modern typography -->
+                    <h3 class="text-3xl font-bold text-gray-900 mb-4">Your cart is empty</h3>
+                    <p class="text-lg text-gray-600 mb-8 max-w-md mx-auto leading-relaxed">
+                        Looks like you haven't added any items to your cart yet. Start exploring our premium hair care collection!
+                    </p>
+                    
+                    <!-- Modern CTA button -->
+                    <a href="{% url 'products:categories' %}" 
+                       class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-pink-600 to-teal-500 hover:from-pink-700 hover:to-teal-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 text-lg">
+                        <i class="fas fa-store mr-3"></i>
+                        Start Shopping
+                    </a>
+                    
+                    <!-- Additional suggestion -->
+                    <p class="text-sm text-gray-500 mt-6">
+                        <i class="fas fa-lightbulb mr-2 text-yellow-500"></i>
+                        Discover our featured products and trending items
+                    </p>
                 </div>
-                <h3 class="text-xl font-semibold text-gray-900 mb-2">Your cart is empty</h3>
-                <p class="text-gray-600 mb-6">Looks like you haven't added any items to your cart yet.</p>
-                <a href="{% url 'products:categories' %}" 
-                   class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gradient-to-r from-pink-600 to-teal-500 hover:from-pink-700 hover:to-teal-600 transition-all duration-300">
-                    Start Shopping
-                </a>
             </div>
         </div>
         {% endif %}
