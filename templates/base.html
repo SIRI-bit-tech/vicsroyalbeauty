@@ -339,20 +339,20 @@
     </div>
 
     <!-- Header -->
-    <header class="bg-white shadow-sm sticky top-0 z-40">
+    <header class="bg-white shadow-sm sticky top-0 z-50">
         <div class="container mx-auto px-4">
-            <div class="flex items-center justify-between h-16">
+            <div class="flex items-center justify-between h-20 md:h-24 lg:h-28">
                 <!-- Mobile Menu Button -->
-          <button
-            onclick="toggleMobileSidebar()"
-            class="lg:hidden text-gray-500 hover:text-gray-700"
-          >
+                <button
+                    onclick="toggleMobileSidebar()"
+                    class="lg:hidden text-gray-500 hover:text-gray-700"
+                >
                     <i class="fas fa-bars text-xl"></i>
                 </button>
                 
                 <!-- Logo -->
-                <a href="{% url 'core:home' %}" class="flex items-center">
-                    <img src="{% static 'images/logo.jpg' %}" alt="Vics Royal Beauty" class="h-12 w-auto md:h-16 lg:h-20 object-contain">
+                <a href="{% url 'core:home' %}" class="flex items-center z-50 relative">
+                    <img src="{% static 'images/logo.jpg' %}" alt="Vics Royal Beauty" class="h-16 w-auto md:h-20 lg:h-24 xl:h-28 object-contain">
                 </a>
                 
                 <!-- Desktop Navigation -->
